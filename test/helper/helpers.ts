@@ -3,10 +3,12 @@ import { INestApplication } from '@nestjs/common';
 import { preparedUser, superUser } from './prepeared-data';
 import { UserViewModel } from '../../src/modules/super-admin/api/dto/userView.model';
 import { isUUID } from 'class-validator';
+import { UserDTO } from "../../src/modules/super-admin/api/dto/userDTO";
 
 export const createNewUser = async (
   request: typeof supertest,
   app: INestApplication,
+  // body: UserDTO
 ) => {
   const response = await request(app.getHttpServer())
     .post('/sa/users')

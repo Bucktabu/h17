@@ -162,16 +162,18 @@ const useCases = [CreateUserUseCase];
     ConfigModule.forRoot(),
     MongooseModule.forRoot(process.env.MONGO_URI),
     MongooseModule.forFeature(schemes),
-    // TypeOrmModule.forRoot({
-    //   type: 'postgres',
-    //   host: 'localhost',
-    //   port: Number(settings.postgres.PORT),
-    //   username: settings.postgres.USERNAME,
-    //   password: settings.postgres.PASSWORD,
-    //   database: settings.postgres.DATABASE_NAME,
-    //   entities: [], // TODO нужно ли сюда прописывать все ентити
-    //   synchronize: false,
-    // }),
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      url: 'postgresql://rURFwkhmLDRjHIePuNOdHnTdJTjXlbpO:CMtybUiSFxGdvOFhjSVrPwHamxtGkvbz@db.thin.dev/07b2d355-46be-470b-907d-ff41cefe3813'
+      // host: 'localhost',
+      // port: Number(settings.postgres.PORT),
+      // username: settings.postgres.USERNAME,
+      // password: settings.postgres.PASSWORD,
+      // database: settings.postgres.DATABASE_NAME,
+      // //autoLoadEntities: true, // ./src/modules/*/infr/entity/**.ts
+      // entities: [], // TODO нужно ли сюда прописывать все ентити
+      // synchronize: false,
+    }),
     //ThrottlerModule.forRoot({ ttl: Number(settings.throttler.CONNECTION_TIME_LIMIT), limit: Number(settings.throttler.CONNECTION_COUNT_LIMIT) }),
   ],
   controllers: [...controllers],

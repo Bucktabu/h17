@@ -26,17 +26,18 @@ export class PgUsersRepository {
         FROM public."Users";
     `)
 
-    return {
-      id: user.id,
-      login: user.login,
-      email: user.email,
-      createdAt: user.createdAt,
-      banInfo: {
-        isBanned: user.isBanned,
-        banDate: user.banDate,
-        banReason: user.banReason
-      }
-    }
+    // {
+    //   id: user.id,
+    //     login: user.login,
+    //   email: user.email,
+    //   createdAt: user.createdAt,
+    //   banInfo: {
+    //   isBanned: user.isBanned,
+    //     banDate: user.banDate,
+    //     banReason: user.banReason
+    // }
+    // }
+    return []
   }
 
   async createUser(newUser: UserDBModel): Promise<UserDBModel | null> {

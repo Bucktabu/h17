@@ -11,7 +11,8 @@ import {
 export class LoginExistValidator implements ValidatorConstraintInterface {
   constructor(
     @Inject(IUsersRepository) protected usersRepository: IUsersRepository,
-  ) {}
+  ) {
+  }
 
   async validate(login) {
     const user = await this.usersRepository.getUserByIdOrLoginOrEmail(login);

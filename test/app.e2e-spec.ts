@@ -5,35 +5,44 @@ import request from 'supertest';
 import { preparedUser, superUser } from "./helper/prepeared-data";
 import { isEmail, isUUID } from "class-validator";
 import { createErrorMessage } from "./helper/helpers";
+import { createApp } from "../src/helpers/create-app";
 
 jest.setTimeout(30000);
 
 describe('e2e tests', () => {
+
+  //STATE
+  // user1, user2, user3
+  // refToken1User1, refToken2User1, refToken1User2 refToken2User2, refToken1User1, refToken1User1,
+  //
+  //
   let app: INestApplication;
+  let server
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 
-    app = await moduleFixture.createNestApplication();
+    const rawApp = await moduleFixture.createNestApplication();
+    app = createApp(rawApp)
     await app.init();
+    server = await app.getHttpServer()
   });
 
   afterAll(async () => {
-    await app.getHttpServer().close();
     await app.close();
-  });
-
-  beforeEach(async () => {
-    // delete all data
   });
 
   describe('Users route tests', () => {
     const errorsMessage = createErrorMessage(['login', 'password', 'email']);
 
     it('Shouldn`t create new user. 401 - Unauthorized.', () => {
-      request(app.getHttpServer())
+
+      //TODO: setState
+      // expect.setState({user1: response.body})
+
+      request(server)
         .post('/sa/users')
         .set(preparedUser.valid)
         //.auth(superUser.newValid.login, superUser.newValid.password, { type: 'basic' })
@@ -64,12 +73,16 @@ describe('e2e tests', () => {
     })
 
     it('Should create new user, ban him and return', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(server)
         .post('/sa/users')
         .set(preparedUser.valid)
         .auth(superUser.valid.login, superUser.valid.password, { type: 'basic' })
         .set({Authorization: 'Basic YWRtaW46cXdlcnR5'})
         .expect(201)
+
+      //TODO: getState
+      // const user1 = expect.getState().user1
+      // const { user1, user2 } = expect.getState()
 
       expect(isUUID(response.body.id)).toBeTruthy()
       expect(isEmail(response.body.email)).toBeTruthy()
