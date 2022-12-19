@@ -18,10 +18,38 @@ export class PgUsersRepository {
   }
 
   async getUsers(query: QueryParametersDto): Promise<UserDBModel[]> {
-    await this.dataSource.query(`
-      
+    const user = await this.dataSource.query(`
+      SELECT id, login, email, createdAt,
+          (SELECT "BanStatus" as "isBanned" FROM public."UserBanInfo" WHERE "Id"="Id"),
+          (SELECT banDate FROM public."UserBanInfo" WHERE "Id"="Id"),
+          (SELECT banReason FROM public."UserBanInfo" WHERE "Id"="Id")
+        FROM public."Users";
     `)
-    return
+
+    return {
+      id: user.id,
+      login: user.login,
+      email: user.email,
+      createdAt: user.createdAt,
+      banInfo: {
+        isBanned: user.isBanned,
+        banDate: user.banDate,
+        banReason: user.banReason
+      }
+    }
+  }
+
+  async createUser(newUser: UserDBModel): Promise<UserDBModel | null> {
+    try {
+      await this.dataSource.query(`
+        INSERT INTO public."Users"(
+              "Login", "Email", "PasswordSalt", "PasswordHash", "CreatedAt")
+          VALUES ('newUser.login', 'newUser.email', 'newUser.PasswordSalt', 'newUser.PasswordHash', 'newUser.CreatedAt'); // TODO параметры для сохранения нужно передавать в кавычках?
+        `)
+      return newUser
+    } catch (e) {
+      return null
+    }
   }
 }
 
