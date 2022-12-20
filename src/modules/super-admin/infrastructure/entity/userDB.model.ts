@@ -1,6 +1,6 @@
 export class UserDBModel {
   constructor(
-    public id: string,
+    //public id: string,
     public login: string,
     public email: string,
     public passwordSalt: string,

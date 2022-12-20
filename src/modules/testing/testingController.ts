@@ -13,7 +13,7 @@ export class TestingController {
   @HttpCode(204)
   async deleteAll() {
     await mongoose.connection.db.dropDatabase();
-    return HttpStatus.NO_CONTENT;
+    return;
   }
 
   // @Delete('all-data')

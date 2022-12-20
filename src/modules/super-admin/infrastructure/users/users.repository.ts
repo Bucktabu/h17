@@ -101,10 +101,6 @@ export class UsersRepository implements IUsersRepository {
     });
   }
 
-  // async save(model) {
-  //   await model.save()
-  // }
-
   async createUser(newUser: UserDBModel): Promise<UserDBModel | null> {
     try {
       await this.usersRepository.create(newUser);

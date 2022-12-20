@@ -3,7 +3,7 @@ import { DataSource } from "typeorm";
 import { InjectDataSource } from "@nestjs/typeorm";
 import { UserDBModel } from "../entity/userDB.model";
 import { QueryParametersDto } from "../../../../global-model/query-parameters.dto";
-import { BanStatusModel } from "../../../../global-model/ban-status.model";
+import { UserViewModelWithBanInfo } from "../../api/dto/userView.model";
 import { giveSkipNumber } from "../../../../helper.functions";
 
 @Injectable()
@@ -11,41 +11,54 @@ export class PgUsersRepository {
   constructor(@InjectDataSource() private dataSource: DataSource) {
   }
 
-  async getUserByIdOrLoginOrEmail(
-    IdOrLoginOrEmail: string,
-  ): Promise<UserDBModel | null> {
-    return
-  }
-
-  async getUsers(query: QueryParametersDto): Promise<UserDBModel[]> {
-    const user = await this.dataSource.query(`
+  async getUsers(query: QueryParametersDto): Promise<UserViewModelWithBanInfo[]> {
+    const usersDB = await this.dataSource.query(`
       SELECT id, login, email, createdAt,
-          (SELECT "BanStatus" as "isBanned" FROM public."UserBanInfo" WHERE "Id"="Id"),
-          (SELECT banDate FROM public."UserBanInfo" WHERE "Id"="Id"),
-          (SELECT banReason FROM public."UserBanInfo" WHERE "Id"="Id")
-        FROM public."Users";
-    `)
+          (SELECT "ban_status" as "isBanned" FROM public."user_ban_info" WHERE "id" = "user_id"),
+          (SELECT banDate FROM public."UserBanInfo" WHERE "id" = "user_id"),
+          (SELECT banReason FROM public."UserBanInfo" WHERE "id" = "user_id")
+        FROM public."Users"
+       WHERE "ban_status" = '${query.banStatus}' 
+         AND login LIKE '%${query.searchLoginTerm}%' 
+         AND email LIKE '%${query.searchEmailTerm}%'
+       ORDER BY '${query.sortBy}' ${query.sortDirection} //?
+       LIMIT ${query.pageSize} OFFSET ${giveSkipNumber(query.pageNumber, query.pageSize)}
 
-    // {
-    //   id: user.id,
-    //     login: user.login,
-    //   email: user.email,
-    //   createdAt: user.createdAt,
-    //   banInfo: {
-    //   isBanned: user.isBanned,
-    //     banDate: user.banDate,
-    //     banReason: user.banReason
-    // }
-    // }
-    return []
+        
+    `)
+      // SELECT id, login, email, createdAt,
+      //   FROM public.users
+      //   LEFT JOIN user_ban_info
+      //     ON users.id = user_ban_info.user_id
+      //  WHERE "ban_status" = '${query.banStatus}'
+      //    AND login LIKE '%${query.searchLoginTerm}%'
+      //    AND email LIKE '%${query.searchEmailTerm}%'
+      //  ORDER BY '${query.sortBy}' ${query.sortDirection} //?
+      //  LIMIT ${query.pageSize} OFFSET ${giveSkipNumber(query.pageNumber, query.pageSize)}
+
+    const users = usersDB.map(u => {
+      return {
+        id: u.id,
+        login: u.login,
+        email: u.email,
+        createdAt: u.createdAt,
+        banInfo: {
+          isBanned: u.isBanned,
+          banDate: u.banDate,
+          banReason: u.banReason
+        }
+      }
+    })
+
+    return users
   }
 
   async createUser(newUser: UserDBModel): Promise<UserDBModel | null> {
     try {
       await this.dataSource.query(`
         INSERT INTO public."Users"(
-              "Login", "Email", "PasswordSalt", "PasswordHash", "CreatedAt")
-          VALUES ('newUser.login', 'newUser.email', 'newUser.PasswordSalt', 'newUser.PasswordHash', 'newUser.CreatedAt'); // TODO параметры для сохранения нужно передавать в кавычках?
+              "login", "email", "password_salt", "password_hash", "created_at")
+          VALUES (newUser.login, newUser.email, newUser.PasswordSalt, newUser.PasswordHash, newUser.CreatedAt); // TODO параметры для сохранения нужно передавать в кавычках?
         `)
       return newUser
     } catch (e) {
@@ -53,5 +66,3 @@ export class PgUsersRepository {
     }
   }
 }
-
-// tests > table scheme > request in pg database

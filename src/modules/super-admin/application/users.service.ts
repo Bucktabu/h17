@@ -19,32 +19,37 @@ import { IUsersRepository } from '../infrastructure/users/users-repository.inter
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "../infrastructure/entity/users.scheme";
 import { Repository } from "typeorm";
+import { UserEntity } from "../infrastructure/entity/user.entity";
+import { PgUsersRepository } from "../infrastructure/users/pg-users.repository";
+import { EmailConfirmationEntity } from "../infrastructure/entity/email-confirmation.entity";
+import { PgEmailConfirmationRepository } from "../infrastructure/users/pg-email-confirmation.repository";
+import { BanInfoEntity } from "../infrastructure/entity/ban-info.entity";
+import { PgBanInfoRepository } from "../infrastructure/users/pg-ban-info.repository";
 
 @Injectable()
 export class UsersService {
   constructor(
-    @Inject(IBanInfo) protected banInfoRepository: IBanInfo,
+    @InjectRepository(BanInfoEntity) protected banInfoRepository: PgBanInfoRepository,
     @Inject(IBlogsRepository) protected blogsRepository: IBlogsRepository,
-    @Inject(IEmailConfirmation)
-    protected emailConfirmationRepository: IEmailConfirmation,
+    @InjectRepository(EmailConfirmationEntity) protected emailConfirmationRepository: PgEmailConfirmationRepository,
     @Inject(ILikesRepository) protected likesRepository: ILikesRepository,
-    @Inject(IUsersRepository) protected usersRepository: IUsersRepository,
+    @InjectRepository(UserEntity) protected usersRepository: PgUsersRepository,
     //@InjectRepository(User) private usersRepository: Repository<User>
   ) {}
 
-  async getUserByIdOrLoginOrEmail(
-    IdOrLoginOrEmail: string,
-  ): Promise<UserDBModel | null> {
-    return this.usersRepository.getUserByIdOrLoginOrEmail(IdOrLoginOrEmail);
-  }
+  // async getUserByIdOrLoginOrEmail(
+  //   IdOrLoginOrEmail: string,
+  // ): Promise<UserDBModel | null> {
+  //   return this.usersRepository.getUserByIdOrLoginOrEmail(IdOrLoginOrEmail);
+  // }
 
   async getUsers(query: QueryParametersDto): Promise<ContentPageModel> {
-    const usersDB = await this.usersRepository.getUsers(query);
-    const users = await Promise.all(
-      usersDB.map(async (u) => await this.addBanInfo(u)),
-    );
+    const users = await this.usersRepository.getUsers(query);
+    // const users = await Promise.all(
+    //   usersDB.map(async (u) => await this.addBanInfo(u)),
+    // );
 
-    const totalCount = await this.usersRepository.getTotalCount(query);
+    const totalCount = users.length;
 
     return paginationContentPage(
       query.pageNumber,
@@ -54,18 +59,18 @@ export class UsersService {
     );
   }
 
-  async updateUserPassword(
-    userId: string,
-    newPassword: string,
-  ): Promise<boolean> {
-    const hash = await _generateHash(newPassword);
-
-    return await this.usersRepository.updateUserPassword(
-      userId,
-      hash.passwordSalt,
-      hash.passwordHash,
-    );
-  }
+  // async updateUserPassword(
+  //   userId: string,
+  //   newPassword: string,
+  // ): Promise<boolean> {
+  //   const hash = await _generateHash(newPassword);
+  //
+  //   return await this.usersRepository.updateUserPassword(
+  //     userId,
+  //     hash.passwordSalt,
+  //     hash.passwordHash,
+  //   );
+  // }
 
   async updateBanStatus(userId: string, dto: BanUserDTO) {
     let banDate = null;
@@ -94,19 +99,5 @@ export class UsersService {
     }
 
     return true;
-  }
-
-  private async addBanInfo(
-    userDB: UserDBModel,
-  ): Promise<UserViewModelWithBanInfo> {
-    const banInfo = await this.banInfoRepository.getBanInfo(userDB.id);
-
-    return {
-      id: userDB.id,
-      login: userDB.login,
-      email: userDB.email,
-      createdAt: userDB.createdAt,
-      banInfo,
-    };
   }
 }

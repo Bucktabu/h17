@@ -12,25 +12,32 @@ import { settings } from '../../../settings';
 import { IBanInfo } from '../infrastructure/ban-info/ban-info.interface';
 import { IEmailConfirmation } from '../infrastructure/email-confirmation/email-confirmation.interface';
 import { IUsersRepository } from '../infrastructure/users/users-repository.interface';
+import { InjectRepository } from "@nestjs/typeorm";
+import { PgUsersRepository } from "../infrastructure/users/pg-users.repository";
+import { UserEntity } from "../infrastructure/entity/user.entity";
+import { PgEmailConfirmationRepository } from "../infrastructure/users/pg-email-confirmation.repository";
+import { EmailConfirmationEntity } from "../infrastructure/entity/email-confirmation.entity";
+import { PgBanInfoRepository } from "../infrastructure/users/pg-ban-info.repository";
+import { BanInfoEntity } from "../infrastructure/entity/ban-info.entity";
+import { UserViewModelWithBanInfo } from "../api/dto/userView.model";
 
 @Injectable()
 export class CreateUserUseCase {
   constructor(
-    @Inject(IBanInfo) protected banInfoRepository: IBanInfo,
-    @Inject(IEmailConfirmation)
-    protected emailConfirmationRepository: IEmailConfirmation,
-    @Inject(IUsersRepository) protected usersRepository: IUsersRepository,
+    @InjectRepository(BanInfoEntity) protected banInfoRepository: PgBanInfoRepository,
+    @InjectRepository(EmailConfirmationEntity) protected emailConfirmationRepository: PgEmailConfirmationRepository,
+    @InjectRepository(UserEntity) protected usersRepository: PgUsersRepository, // TODO в видео не создает ентити, а тут просит его прокинуть
   ) {}
 
   async execute(dto: UserDTO) {
     const hash = await _generateHash(dto.password);
-    const userAccountId = uuidv4();
+    //const userAccountId = uuidv4();
     //const createdAt = new Date().toISOString()
 
     //const accountData = UserDBModel.makeInstance(userAccountId, dto, hash, createdAt)
 
     const accountData = new UserDBModel(
-      userAccountId,
+      //userAccountId,
       dto.login,
       dto.email,
       hash.passwordSalt,
@@ -40,14 +47,14 @@ export class CreateUserUseCase {
     );
 
     const emailConfirmation = new EmailConfirmationModel(
-      userAccountId,
+      //userAccountId,
       uuidv4(),
       add(new Date(), { hours: Number(settings.timeLife.CONFIRMATION_CODE) }),
       false,
     );
 
     const banInfo = new BanInfoModel(
-      userAccountId,
+      //userAccountId,
       false,
       null,
       null,
@@ -71,7 +78,7 @@ export class CreateUserUseCase {
 
     return {
       user: createdUser,
-      email: accountData.email,
+      email: accountData.email, // убрать
       code: emailConfirmation.confirmationCode,
     };
   }
@@ -79,7 +86,7 @@ export class CreateUserUseCase {
   private async createUserAccount(
     userAccount: UserAccountModel,
   ): Promise<boolean> {
-    const user = await this.usersRepository.createUser(userAccount.accountData);
+    const user = await this.usersRepository.createUser(userAccount.accountData); // TODO нужно создать, сделать запрос, чтобы узнать айди
     await this.banInfoRepository.createBanInfo(userAccount.banInfo);
     const emailConfirmation =
       await this.emailConfirmationRepository.createEmailConfirmation(

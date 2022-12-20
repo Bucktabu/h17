@@ -3,7 +3,7 @@ export const superUser = {
     login: 'admin',
     password: 'qwerty',
   },
-  newValid: {
+  notValid: {
     login: 'neAdmin',
     password: 'abracadabra',
   },
@@ -11,7 +11,7 @@ export const superUser = {
 
 export const preparedUser = {
   valid: {
-    login: 'login',
+    login: 'MyLogin',
     password: 'password',
     email: 'somemail@gmail.com',
   },
@@ -27,13 +27,24 @@ export const preparedUser = {
   },
 };
 
+export const banUserDto = {
+  valid: {
+    isBanned: true,
+    banReason: "Length-20_stringstri"
+  },
+  notValid: {
+    isBanned: 'true',
+    banReason: "Length-19_stringstr"
+  }
+}
+
 export const preparedBlog = {
   valid: {
     name: 'valid name',
     description: 'valid description',
     websiteUrl: 'https://it-incubator.io/',
   },
-  newValid: {
+  notValid: {
     name: 'new valid name',
     description: 'new valid description',
     websiteUrl: 'https://it-incubator.io/new',
@@ -58,7 +69,7 @@ export const preparedPost = {
     shortDescription: 'valid shortDescription',
     content: 'valid content',
   },
-  newValid: {
+  notValid: {
     title: 'new valid title',
     shortDescription: 'new valid shortDescription',
     content: 'new valid content',

@@ -38,13 +38,14 @@ export const createNewUser = async (
   return user;
 };
 
-export const createErrorMessage = (...fields) => {
+export const createErrorMessage = (fields) => {
   const errorsMessages = [];
   for (let i = 0, length = fields.length; i < length; i++) {
     errorsMessages.push({
-      message: expect.any(String),
-      field: fields[i],
+      "message": expect.any(String),
+      "field": fields[i],
     });
   }
+
   return errorsMessages;
 };
