@@ -7,15 +7,11 @@ import { isEmail, isUUID } from "class-validator";
 import { createErrorMessage } from "./helper/helpers";
 import { createApp } from "../src/helpers/create-app";
 import { connection } from "mongoose";
+import { DataSource } from "typeorm";
 
 jest.setTimeout(30000);
 
 describe('e2e tests', () => {
-
-  //STATE
-  // user1, user2, user3
-  // refToken1User1, refToken2User1, refToken1User2 refToken2User2, refToken1User1, refToken1User1,
-
   let app: INestApplication;
   let server
 
@@ -29,6 +25,25 @@ describe('e2e tests', () => {
     await app.init();
     server = await app.getHttpServer()
   });
+
+  afterEach(async () => {
+    const dataSource = await app.resolve(DataSource)
+    await dataSource.query(`
+      CREATE OR REPLACE FUNCTION truncate_tables(username in VARCHAR) RETURNS void AS $$
+      DECLARE
+      statements CURSOR FOR
+       SELECT tablename FROM pg_tables
+       WHERE tableowner = username AND schemaname = 'public';
+        BEGIN
+          FOR stmt IN statements LOOP
+          EXECUTE 'TRUNCATE TABLE ' || quote_ident(stmt.tablename) || ' CASCADE;'
+            END LOOP;
+              END;
+                $$ LANGUAGE plpgsql;
+                  SELECT truncate_tables('postgres');
+    `)
+
+  })
 
   afterAll(async () => {
     await app.close();
@@ -50,6 +65,9 @@ describe('e2e tests', () => {
 
       //TODO: setState
       // expect.setState({user1: response.body})
+      // getState
+      // const user1 = expect.getState().user1
+      // const { user1, user2 } = expect.getState()
 
       request(server)
         .post('/sa/users')
@@ -84,10 +102,6 @@ describe('e2e tests', () => {
         .send(preparedUser.valid)
         .auth(superUser.valid.login, superUser.valid.password, { type: 'basic' })
         .expect(201)
-
-      //TODO: getState
-      // const user1 = expect.getState().user1
-      // const { user1, user2 } = expect.getState()
 
       expect(isUUID(response.body.id)).toBeTruthy()
       expect(isEmail(response.body.email)).toBeTruthy()

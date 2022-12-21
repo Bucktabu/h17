@@ -1,13 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { JwtRepository } from '../infrastructure/jwt.repository';
 import jwt from 'jsonwebtoken';
 import { settings } from '../../../../settings';
-import { IJwtRepository } from '../infrastructure/jwt-repository.interface';
+import { InjectRepository } from "@nestjs/typeorm";
+import { PgJwtRepository } from "../infrastructure/pg-jwt.repository";
+import { JwtEntity } from "../infrastructure/entity/jwt.entity";
 
 @Injectable()
 export class JwtService {
   constructor(
-    @Inject(IJwtRepository) protected jwtRepository: IJwtRepository,
+    protected jwtRepository: PgJwtRepository,
   ) {}
 
   async getTokenPayload(token: string) {
@@ -19,18 +20,8 @@ export class JwtService {
     }
   }
 
-  async getUserIdViaToken(token?: string): Promise<string | null> {
-    let userId;
-    if (!token) userId = null;
-    else {
-      const payload = await this.getTokenPayload(token.split(' ')[1]);
-      userId = payload.userId;
-    }
-    return userId;
-  }
-
   async checkTokenInBlackList(refreshToken: string) {
-    return await this.jwtRepository.giveToken(refreshToken);
+    return await this.jwtRepository.getToken(refreshToken);
   }
 
   async addTokenInBlackList(refreshToken: string) {

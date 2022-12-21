@@ -67,7 +67,6 @@ export class AuthController {
     );
 
     await this.securityService.createUserDevice(tokenPayload, ipAddress);
-    // console.log('refreshToken=' + token.refreshToken);
 
     return res
       .status(200)
@@ -77,7 +76,7 @@ export class AuthController {
         //maxAge: 24*60*60*1000
       })
       .send({ accessToken: token.accessToken });
-  } // TODO можно все привести к точно такому же виду как в експрессе
+  }
 
   @Post('password-recovery')
   @HttpCode(204)
@@ -98,34 +97,6 @@ export class AuthController {
     return;
   }
 
-  @Post('new-password')
-  @HttpCode(204)
-  async createNewPassword(@Body() dto: NewPasswordDTO) {
-    const emailConfirmation =
-      await this.emailConfirmationService.getConfirmationByCode(
-        dto.recoveryCode,
-      );
-
-    const user = await this.usersService.getUserByIdOrLoginOrEmail(
-      emailConfirmation.id,
-    );
-
-    if (!user) {
-      throw new NotFoundException();
-    }
-
-    const result = await this.usersService.updateUserPassword(
-      emailConfirmation.id,
-      dto.newPassword,
-    );
-
-    if (!result) {
-      throw new NotImplementedException();
-    }
-
-    return;
-  }
-
   //@UseGuards(ThrottlerGuard)
   @Post('registration')
   @HttpCode(204)
@@ -133,7 +104,7 @@ export class AuthController {
     const createdUser = await this.createUserUseCase.execute(dto);
 
     this.emailManager.sendConfirmationEmail(
-      createdUser.email,
+      createdUser.user.email,
       createdUser.code,
     );
 

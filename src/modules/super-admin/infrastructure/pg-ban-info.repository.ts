@@ -1,11 +1,19 @@
 import { Injectable } from "@nestjs/common";
-import { BanInfoModel } from "../entity/banInfo.model";
+import { BanInfoModel } from "./entity/banInfo.model";
 import { InjectDataSource } from "@nestjs/typeorm";
 import { DataSource } from "typeorm";
 
 @Injectable()
 export class PgBanInfoRepository {
   constructor(@InjectDataSource() private dataSource: DataSource) {
+  }
+
+  async getBanInfo(userId: string): Promise<BanInfoModel | null> {
+    return await this.dataSource.query(`
+      SELECT "UserId" as "userId", "IsBanned" as "isBanned", "BanDate" as "banDate", "BanReason" as "banReason"', "BlogId" as "blogId"
+        FROM public."UserBanInfo"
+       WHERE "UserId" = ${userId};
+    `)
   }
 
   async createBanInfo(banInfo: BanInfoModel): Promise<BanInfoModel | null> {
@@ -24,9 +32,21 @@ export class PgBanInfoRepository {
   async saUpdateBanStatus(userId: string, banStatus: boolean, banReason: string, banDate: Date): Promise<boolean> {
     try {
       await this.dataSource.query(`
-        UPDATE public."user_ban_info"
-           SET "ban_status" = ${banStatus}, "BanDate" = ${banDate}, "BanReason" = ${banReason}
-         WHERE "user_id" = ${userId};
+        UPDATE public."UserBanInfo"
+           SET "BanStatus" = ${banStatus}, "BanDate" = ${banDate}, "BanReason" = ${banReason}
+         WHERE "UserId" = ${userId};
+      `)
+      return true
+    } catch (e) {
+      return false
+    }
+  }
+
+  async deleteBanInfoById(userId: string): Promise<boolean> {
+    try {
+      await this.dataSource.query(`
+        DELETE FROM public."UserBanInfo"
+         WHERE "userId" = ${userId};
       `)
       return true
     } catch (e) {

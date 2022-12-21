@@ -1,5 +1,6 @@
 export class UserDeviceModel {
   constructor(
+    public userId: string,
     public deviceId: string,
     public deviceTitle: string,
     public browser: string,

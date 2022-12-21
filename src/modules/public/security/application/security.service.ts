@@ -1,18 +1,17 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { JwtService } from '../../auth/application/jwt.service';
 import { DeviceSecurityModel } from '../infrastructure/entity/deviceSecurity.model';
 import { UserDeviceModel } from '../infrastructure/entity/userDevice.model';
 import UserAgent from 'user-agents';
 import { toActiveSessionsViewModel } from '../../../../data-mapper/to-active-session-view.model';
 import { TokenPayloadModel } from '../../../../global-model/token-payload.model';
-import { ISecurityRepository } from '../infrastructure/security-repository.interface';
+import { PgSecurityRepository } from "../infrastructure/pg-security.repository";
 
 @Injectable()
 export class SecurityService {
   constructor(
     protected jwtService: JwtService,
-    @Inject(ISecurityRepository)
-    protected securityRepository: ISecurityRepository,
+    protected securityRepository: PgSecurityRepository,
   ) {}
 
   async getAllActiveSessions(userId: string) {
@@ -46,6 +45,7 @@ export class SecurityService {
     const userDeviceInfo: any = new UserAgent().data;
 
     const userDevice = new UserDeviceModel(
+      tokenPayload.userId,
       tokenPayload.deviceId,
       userDeviceInfo.deviceCategory,
       userDeviceInfo.userAgent,
@@ -54,13 +54,8 @@ export class SecurityService {
       tokenPayload.exp,
     );
 
-    const createDevice = new DeviceSecurityModel(
-      tokenPayload.userId,
-      userDevice,
-    );
-
     const createdDevice = await this.securityRepository.createUserDevice(
-      createDevice,
+      userDevice,
     );
 
     if (!createdDevice) {

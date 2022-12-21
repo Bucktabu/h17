@@ -1,12 +1,13 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { EmailConfirmationModel } from '../infrastructure/entity/emailConfirmation.model';
-import { IEmailConfirmation } from '../infrastructure/email-confirmation/email-confirmation.interface';
+import { InjectRepository } from "@nestjs/typeorm";
+import { EmailConfirmationEntity } from "../infrastructure/entity/email-confirmation.entity";
+import { PgEmailConfirmationRepository } from "../infrastructure/pg-email-confirmation.repository";
 
 @Injectable()
 export class EmailConfirmationService {
   constructor(
-    @Inject(IEmailConfirmation)
-    protected emailConfirmationRepository: IEmailConfirmation,
+    protected emailConfirmationRepository: PgEmailConfirmationRepository,
   ) {}
 
   async getConfirmationByCode(code: string): Promise<EmailConfirmationModel> {

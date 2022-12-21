@@ -1,13 +1,8 @@
-import { CommentViewModel } from './modules/public/comments/api/dto/commentView.model';
-import { PostViewModel } from './modules/public/posts/api/dto/postsView.model';
 import { UserViewModelWithBanInfo } from './modules/super-admin/api/dto/userView.model';
-import bcrypt from 'bcrypt';
-import { BlogViewModel } from './modules/public/blogs/api/dto/blogView.model';
-import { BlogViewWithOwnerAndBanInfo } from './modules/super-admin/api/dto/blog-view-with-owner-and-ban.info';
 import { ContentPageModel } from './global-model/contentPage.model';
 import { settings } from './settings';
-import { ViewBanInfoModel } from './modules/blogger/api/dto/view-ban-info.model';
-import { CommentWithAdditionalInfoModel } from './modules/blogger/api/dto/comment-with-additional-info.model';
+import { ViewBanInfoModel } from "./modules/super-admin/api/dto/view-ban-info.model";
+import bcrypt from 'bcrypt';
 
 export const giveSkipNumber = (pageNumber: number, pageSize: number) => {
   return (pageNumber - 1) * pageSize;
@@ -30,12 +25,12 @@ export const paginationContentPage = (
   pageNumber: number,
   pageSize: number,
   content:
-    | BlogViewModel[]
-    | BlogViewWithOwnerAndBanInfo[]
-    | CommentWithAdditionalInfoModel[]
-    | PostViewModel[]
+    //| BlogViewModel[]
+    // | BlogViewWithOwnerAndBanInfo[]
+    // | CommentWithAdditionalInfoModel[]
+    // | PostViewModel[]
     | UserViewModelWithBanInfo[]
-    | CommentViewModel[]
+    //| CommentViewModel[]
     | ViewBanInfoModel[],
   totalCount: number,
 ): ContentPageModel => {

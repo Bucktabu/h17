@@ -1,16 +1,18 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { IUsersRepository } from '../modules/super-admin/infrastructure/users/users-repository.interface';
+import { Injectable } from '@nestjs/common';
 import {
   ValidationArguments,
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
+import { InjectRepository } from "@nestjs/typeorm";
+import { UserEntity } from "../modules/super-admin/infrastructure/entity/user.entity";
+import { PgUsersRepository } from "../modules/super-admin/infrastructure/pg-users.repository";
 
 @Injectable()
 @ValidatorConstraint({ name: 'login', async: true })
 export class LoginExistValidator implements ValidatorConstraintInterface {
   constructor(
-    @Inject(IUsersRepository) protected usersRepository: IUsersRepository,
+    protected usersRepository: PgUsersRepository,
   ) {
   }
 

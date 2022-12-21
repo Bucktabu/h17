@@ -3,10 +3,11 @@ export const settings = {
     process.env.mongoURI ||
     'mongodb://0.0.0.0:27017/blogPlatform?maxPoolSize=20&w=majority',
   postgres: {
+    POSTGRES_URI: 'postgresql://dAPJMCdzdnWGfKtjgaBcsREvhWOAOJeL:ilbnYekfrptZtwXtyUMNXezPoBdyRgST@db.thin.dev/bf72cc19-10c0-4c27-89ec-1e3681dc9ba8',
     PORT: '5432',
     USERNAME: 'postgres',
     PASSWORD: 'admin',
-    DATABASE_NAME: 'BlogPlatform',
+    DATABASE_NAME: 'BlogsPlatform',
   },
   JWT_SECRET: process.env.JWT_SECRET || '123',
   basic: {

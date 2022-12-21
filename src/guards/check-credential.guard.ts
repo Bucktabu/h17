@@ -1,20 +1,22 @@
 import {
   CanActivate,
   ExecutionContext,
-  Inject,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 import bcrypt from 'bcrypt';
 import { UserDBModel } from '../modules/super-admin/infrastructure/entity/userDB.model';
-import { IUsersRepository } from '../modules/super-admin/infrastructure/users/users-repository.interface';
-import { IBanInfo } from '../modules/super-admin/infrastructure/ban-info/ban-info.interface';
+import { InjectRepository } from "@nestjs/typeorm";
+import { UserEntity } from "../modules/super-admin/infrastructure/entity/user.entity";
+import { PgUsersRepository } from "../modules/super-admin/infrastructure/pg-users.repository";
+import { BanInfoEntity } from "../modules/super-admin/infrastructure/entity/ban-info.entity";
+import { PgBanInfoRepository } from "../modules/super-admin/infrastructure/pg-ban-info.repository";
 
 @Injectable()
 export class CheckCredentialGuard implements CanActivate {
   constructor(
-    @Inject(IUsersRepository) protected usersRepository: IUsersRepository,
-    @Inject(IBanInfo) protected banInfoRepository: IBanInfo,
+    protected banInfoRepository: PgBanInfoRepository,
+    protected usersRepository: PgUsersRepository,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {

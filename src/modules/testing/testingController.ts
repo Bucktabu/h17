@@ -1,18 +1,29 @@
-import { Controller, Delete, HttpCode, HttpStatus } from '@nestjs/common';
-import mongoose, { Model } from 'mongoose';
-import { InjectModel } from '@nestjs/mongoose';
-import {
-  Blog,
-  BlogDocument,
-} from '../public/blogs/infrastructure/entity/blog.schema';
+import { Controller, Delete, HttpCode } from '@nestjs/common';
+import { InjectDataSource } from "@nestjs/typeorm";
+import { DataSource } from "typeorm";
 
 @Controller('testing')
 export class TestingController {
-  //constructor(@InjectModel(Blog.name) private blogsRepository: Model<BlogDocument>) {}
+  constructor(@InjectDataSource() private dataSource: DataSource) {
+  }
   @Delete('all-data')
   @HttpCode(204)
   async deleteAll() {
-    await mongoose.connection.db.dropDatabase();
+    await this.dataSource.query(`
+      CREATE OR REPLACE FUNCTION truncate_tables(username in VARCHAR) RETURNS void AS $$
+      DECLARE
+      statements CURSOR FOR
+       SELECT tablename FROM pg_tables
+        WHERE tableowner = username AND schemaname = 'public';
+        BEGIN
+          FOR stmt IN statements LOOP
+          EXECUTE 'TRUNCATE TABLE ' || quote_ident(stmt.tablename) || ' CASCADE;'
+              END LOOP;
+              END;
+               $$ LANGUAGE plpgsql;
+                  SELECT truncate_tables('postgres');
+    `);
+
     return;
   }
 
