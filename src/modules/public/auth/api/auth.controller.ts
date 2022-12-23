@@ -101,7 +101,8 @@ export class AuthController {
   @Post('registration')
   @HttpCode(204)
   async registration(@Body() dto: UserDTO) {
-    const createdUser = await this.createUserUseCase.execute(dto);
+    const creator = 'user'
+    const createdUser = await this.createUserUseCase.execute(dto, creator);
 
     this.emailManager.sendConfirmationEmail(
       createdUser.user.email,

@@ -18,10 +18,10 @@ export class CreateUserUseCase {
   constructor(
     protected banInfoRepository: PgBanInfoRepository,
     protected emailConfirmationRepository: PgEmailConfirmationRepository,
-    protected usersRepository: PgUsersRepository, // TODO в видео не создает ентити, а тут просит его прокинуть
+    protected usersRepository: PgUsersRepository,
   ) {}
 
-  async execute(dto: UserDTO) {
+  async execute(dto: UserDTO, creator) {
     const hash = await _generateHash(dto.password);
     const userAccountId = uuidv4();
 
@@ -33,6 +33,10 @@ export class CreateUserUseCase {
       hash.passwordHash,
       new Date().toISOString(),
     );
+
+    // if (creator === 'sa') {
+    //
+    // }
 
     const emailConfirmation = new EmailConfirmationModel(
       userAccountId,

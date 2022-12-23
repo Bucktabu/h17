@@ -36,9 +36,9 @@ export class UsersController {
   }
 
   @Post()
-  @HttpCode(201)
   async createUser(@Body() dto: UserDTO): Promise<UserViewModel> {
-    const result = await this.createUserUseCase.execute(dto);
+    const creator = 'sa'
+    const result = await this.createUserUseCase.execute(dto, creator);
 
     return result.user;
   }

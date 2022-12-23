@@ -12,18 +12,18 @@ export class PgEmailConfirmationRepository {
     codeOrId: string,
   ): Promise<EmailConfirmationModel | null> {
     return await this.dataSource.query(`
-      SELECT "UserId" as "userId", "ConfirmationCode" as "confirmationCode", "ExpirationDate" as "expirationDate", "IsConfirmed" as "isConfirmed"
-        FROM public."EmailConfirmation"
-       WHERE "UserId" = ${codeOrId} OR "ConfirmationCode" = ${codeOrId};
+      SELECT user_id as "userId", confirmation_code as "confirmationCode", expiration_date as "expirationDate", is_confirmed as "isConfirmed"
+        FROM public.email_confirmation
+       WHERE user_id = ${codeOrId} OR confirmation_code = ${codeOrId};
     `)
   }
 
   async checkConfirmation(userId: string): Promise<boolean | null> {
     try {
       const result = await this.dataSource.query(`
-        SELECT "IsConfirmed"
-          FROM public."EmailConfirmation";
-         WHERE "UserId" = ${userId}
+        SELECT is_confirmed
+          FROM public.email_confirmation;
+         WHERE user_id = ${userId}
       `)
 
       if (!result) {
@@ -39,7 +39,8 @@ export class PgEmailConfirmationRepository {
   async createEmailConfirmation(emailConfirmation: EmailConfirmationModel): Promise<EmailConfirmationModel | null> {
     try {
       await this.dataSource.query(`
-        INSERT INTO public."Users"("ConfirmationCode", "ExpirationDate", "IsConfirmation")
+        INSERT INTO public.users 
+          (confirmation_code, expiration_date, is_confirmed)
           VALUES (${emailConfirmation.confirmationCode}, ${emailConfirmation.expirationDate}, ${emailConfirmation.isConfirmed});
         `)
       return emailConfirmation
@@ -51,9 +52,9 @@ export class PgEmailConfirmationRepository {
   async updateConfirmationInfo(idOrCode: string): Promise<boolean> {
     try {
       await this.dataSource.query(`
-        UPDATE public."EmailConfirmation"
-           SET "IsConfirmed" = true
-         WHERE "UserId" = ${idOrCode} OR "ConfirmationCode" = ${idOrCode};
+        UPDATE public.email_confirmation
+           SET is_confirmed = true
+         WHERE user_id = ${idOrCode} OR confirmation_code = ${idOrCode};
       `)
     } catch (e) {
       return false
@@ -67,9 +68,9 @@ export class PgEmailConfirmationRepository {
   ): Promise<boolean> {
     try {
       await this.dataSource.query(`
-        UPDATE public."EmailConfirmation"
-           SET "ConfirmationCode" = ${confirmationCode}, "ExpirationDate" = ${expirationDate} // TODO если необязательный параметр не пришел не перезапишет ли на пустое значение
-         WHERE "UserId" = ${userId};
+        UPDATE public.email_confirmation
+           SET confirmation_code = ${confirmationCode}, expiration_date = ${expirationDate} // TODO если необязательный параметр не пришел не перезапишет ли на пустое значение
+         WHERE user_id = ${userId};
       `)
       return true
     } catch (e) {
@@ -80,8 +81,8 @@ export class PgEmailConfirmationRepository {
   async deleteEmailConfirmationById(userId: string): Promise<boolean> {
     try {
       await this.dataSource.query(`
-        DELETE FROM public."EmailConfirmation"
-         WHERE "userId" = ${userId};
+        DELETE FROM public.email_confirmation
+         WHERE user_id = ${userId};
       `)
       return true
     } catch (e) {

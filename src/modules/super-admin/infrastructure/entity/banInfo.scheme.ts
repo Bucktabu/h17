@@ -36,4 +36,4 @@ export class BanInfo {
   userLogin: string;
 }
 
-export const BanInfoSchema = SchemaFactory.createForClass(BanInfo);
+//export const BanInfoSchema = SchemaFactory.createForClass(BanInfo);

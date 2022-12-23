@@ -3,7 +3,7 @@ export const settings = {
     process.env.mongoURI ||
     'mongodb://0.0.0.0:27017/blogPlatform?maxPoolSize=20&w=majority',
   postgres: {
-    POSTGRES_URI: 'postgresql://dAPJMCdzdnWGfKtjgaBcsREvhWOAOJeL:ilbnYekfrptZtwXtyUMNXezPoBdyRgST@db.thin.dev/bf72cc19-10c0-4c27-89ec-1e3681dc9ba8',
+    POSTGRES_URI: 'postgresql://nIRZBHzITmAvUkhtdvZeGzaSlFbAIXVP:PWLIcDakeYEGjOdFdlIlLNhUOhggreIk@db.thin.dev/e261df19-2d78-4cad-9d17-11646bfeb98a',
     PORT: '5432',
     USERNAME: 'postgres',
     PASSWORD: 'admin',

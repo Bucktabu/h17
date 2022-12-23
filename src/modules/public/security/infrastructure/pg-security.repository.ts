@@ -10,17 +10,17 @@ export class PgSecurityRepository {
 
   async getAllActiveSessions(userId: string): Promise<DeviceSecurityModel[]> {
     return await this.dataSource.query(`
-      SELECT "UserId" as "userId", "DeviceId" as "deviceId", "DeviceTitle" as "deviceTitle", "Browser" as "browser", "IpAddress" as "ipAddress", iat, exp
-        FROM public."SecurityDevice"
-       WHERE "UserId" = ${userId};
+      SELECT user_id as "userId", device_id as "deviceId", device_title as "deviceTitle", browser as "browser", ip_address as "ipAddress", iat, exp
+        FROM public.security_device
+       WHERE user_id = ${userId};
     `)
   }
 
   async getDeviseById(deviceId: string): Promise<DeviceSecurityModel | null> {
     return await this.dataSource.query(`
-      SELECT "UserId" as "userId", "DeviceId" as "deviceId", "DeviceTitle" as "deviceTitle", "Browser" as "browser", "IpAddress" as "ipAddress", iat, exp
-        FROM public."SecurityDevice"
-       WHERE "DeviceId" = ${deviceId};
+      SELECT user_id as "userId", device_id as "deviceId", device_title as "deviceTitle", browser as "browser", ip_address as "ipAddress", iat, exp
+        FROM public.security_device
+       WHERE device_id = ${deviceId};
     `)
   }
 
@@ -29,8 +29,8 @@ export class PgSecurityRepository {
   ): Promise<DeviceSecurityModel | null> {
     try {
       return await this.dataSource.query(`
-        INSERT INTO public."SecurityDevice"(
-            "UserId", "DeviceId", "DeviceTitle", "Browser", "IpAddress", iat, exp)
+        INSERT INTO public.security_device
+        (user_id, device_id, device_title, browser, ip_address, iat, exp)
         VALUES (${createDevice.userId}, ${createDevice.deviceId}, ${createDevice.deviceTitle}, ${createDevice.browser}, ${createDevice.ipAddress}, ${createDevice.iat}, ${createDevice.exp});
       `)
     } catch (e) {
@@ -45,9 +45,9 @@ export class PgSecurityRepository {
   ): Promise<boolean> {
     try {
       await this.dataSource.query(`
-        UPDATE public."SecurityDevice"
+        UPDATE public.security_device
            SET iat = ${iat}, exp = ${exp}
-         WHERE "DeviceId" = ${deviceId};
+         WHERE device_id = ${deviceId};
       `)
       return true
     } catch (e) {
@@ -61,8 +61,8 @@ export class PgSecurityRepository {
   ): Promise<boolean> {
     try {
       await this.dataSource.query(`
-        DELETE FROM public."SecurityDevice"
-         WHERE "UserId" = ${userId} AND "DeviceId" != ${deviceId}
+        DELETE FROM public.security_device
+         WHERE user_id = ${userId} AND device_id != ${deviceId}
       `)
       return true;
     } catch (e) {
@@ -73,8 +73,8 @@ export class PgSecurityRepository {
   async deleteDeviceById(deviceId: string): Promise<boolean> {
     try {
       await this.dataSource.query(`
-        DELETE FROM public."SecurityDevice"
-         WHERE "DeviceId" = ${deviceId}
+        DELETE FROM public.security_device
+         WHERE device_id = ${deviceId}
       `)
       return true;
     } catch (e) {

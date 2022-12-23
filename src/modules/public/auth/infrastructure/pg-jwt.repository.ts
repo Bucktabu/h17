@@ -8,16 +8,17 @@ export class PgJwtRepository {
 
   async getToken(refreshToken: string): Promise<string> {
     return this.dataSource.query(`
-      SELECT "Token"
-        FROM public."TokenBlackList"
-       WHERE "Token" = ${refreshToken};
+      SELECT token
+        FROM public.token_black_list
+       WHERE token = ${refreshToken};
     `);
   }
 
   async addTokenInBlackList(refreshToken: string): Promise<boolean> {
     try {
       await this.dataSource.query(`
-        INSERT INTO public."TokenBlackList"("Token")
+        INSERT INTO public.token_black_list
+        (token)
         VALUES (${refreshToken});
       `)
       return true;

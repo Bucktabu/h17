@@ -10,17 +10,17 @@ export class PgBanInfoRepository {
 
   async getBanInfo(userId: string): Promise<BanInfoModel | null> {
     return await this.dataSource.query(`
-      SELECT "UserId" as "userId", "IsBanned" as "isBanned", "BanDate" as "banDate", "BanReason" as "banReason"', "BlogId" as "blogId"
-        FROM public."UserBanInfo"
-       WHERE "UserId" = ${userId};
+      SELECT user_id as "userId", is_banned as "isBanned", ban_date as "banDate", ban_reason as "banReason", blog_id as "blogId"
+        FROM public.user_ban_info
+       WHERE user_id = ${userId};
     `)
   }
 
   async createBanInfo(banInfo: BanInfoModel): Promise<BanInfoModel | null> {
     try {
       await this.dataSource.query(`
-        INSERT INTO public."user_ban_info"(
-              "is_banned", "ban_date", "ban_reason", "blog_id")
+        INSERT INTO public.user_ban_info
+          (is_banned, ban_date, ban_reason, blog_id)
           VALUES (banInfo.isBanned, banInfo.banDate, banInfo.banReason, banInfo.blogId);
         `)
       return banInfo
@@ -32,9 +32,9 @@ export class PgBanInfoRepository {
   async saUpdateBanStatus(userId: string, banStatus: boolean, banReason: string, banDate: Date): Promise<boolean> {
     try {
       await this.dataSource.query(`
-        UPDATE public."UserBanInfo"
-           SET "BanStatus" = ${banStatus}, "BanDate" = ${banDate}, "BanReason" = ${banReason}
-         WHERE "UserId" = ${userId};
+        UPDATE public.user_ban_info
+           SET ban_status = ${banStatus}, ban_date = ${banDate}, ban_reason" = ${banReason}
+         WHERE user_id = ${userId};
       `)
       return true
     } catch (e) {
@@ -45,8 +45,8 @@ export class PgBanInfoRepository {
   async deleteBanInfoById(userId: string): Promise<boolean> {
     try {
       await this.dataSource.query(`
-        DELETE FROM public."UserBanInfo"
-         WHERE "userId" = ${userId};
+        DELETE FROM public.user_ban_info
+         WHERE user_id = ${userId};
       `)
       return true
     } catch (e) {
