@@ -6,16 +6,18 @@ import UserAgent from 'user-agents';
 import { toActiveSessionsViewModel } from '../../../../data-mapper/to-active-session-view.model';
 import { TokenPayloadModel } from '../../../../global-model/token-payload.model';
 import { PgSecurityRepository } from "../infrastructure/pg-security.repository";
+import { PgQuerySecurityRepository } from "../infrastructure/pg-query-security.repository";
 
 @Injectable()
 export class SecurityService {
   constructor(
     protected jwtService: JwtService,
     protected securityRepository: PgSecurityRepository,
+    protected querySecurityRepository: PgQuerySecurityRepository
   ) {}
 
   async getAllActiveSessions(userId: string) {
-    const activeSessions = await this.securityRepository.getAllActiveSessions(
+    const activeSessions = await this.querySecurityRepository.getAllActiveSessions(
       userId,
     );
 
@@ -29,7 +31,7 @@ export class SecurityService {
   }
 
   async getDeviceById(deviceId: string): Promise<DeviceSecurityModel | null> {
-    const device = await this.securityRepository.getDeviseById(deviceId);
+    const device = await this.querySecurityRepository.getDeviseById(deviceId);
 
     if (!device) {
       return null;

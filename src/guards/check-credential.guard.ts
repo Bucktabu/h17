@@ -11,19 +11,20 @@ import { UserEntity } from "../modules/super-admin/infrastructure/entity/user.en
 import { PgUsersRepository } from "../modules/super-admin/infrastructure/pg-users.repository";
 import { BanInfoEntity } from "../modules/super-admin/infrastructure/entity/ban-info.entity";
 import { PgBanInfoRepository } from "../modules/super-admin/infrastructure/pg-ban-info.repository";
+import { PgQueryUsersRepository } from "../modules/super-admin/infrastructure/pg-query-users.repository";
 
 @Injectable()
 export class CheckCredentialGuard implements CanActivate {
   constructor(
     protected banInfoRepository: PgBanInfoRepository,
-    protected usersRepository: PgUsersRepository,
+    protected usersRepository: PgQueryUsersRepository,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest();
 
     const user: UserDBModel | null =
-      await this.usersRepository.getUserByIdOrLoginOrEmail(
+      await this.usersRepository.getUserByLoginOrEmail(
         req.body.loginOrEmail,
       );
 

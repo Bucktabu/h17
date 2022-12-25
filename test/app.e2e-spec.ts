@@ -8,6 +8,8 @@ import { createErrorMessage } from "./helper/helpers";
 import { createApp } from "../src/helpers/create-app";
 import { connection } from "mongoose";
 import { DataSource } from "typeorm";
+import { EmailManager } from "../src/modules/public/auth/email-transfer/email.manager";
+import { EmailManagerMock } from "./mock/emailAdapter.mock";
 
 jest.setTimeout(30000);
 
@@ -18,32 +20,16 @@ describe('e2e tests', () => {
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+      .overrideProvider(EmailManager)
+      .useValue(new EmailManagerMock())
+      .compile();
 
     const rawApp = await moduleFixture.createNestApplication();
     app = createApp(rawApp)
     await app.init();
     server = await app.getHttpServer()
   });
-
-  afterEach(async () => {
-    const dataSource = await app.resolve(DataSource)
-    await dataSource.query(`
-      CREATE OR REPLACE FUNCTION truncate_tables(username in VARCHAR) RETURNS void AS $$
-      DECLARE
-      statements CURSOR FOR
-       SELECT tablename FROM pg_tables
-       WHERE tableowner = username AND schemaname = 'public';
-        BEGIN
-          FOR stmt IN statements LOOP
-          EXECUTE 'TRUNCATE TABLE ' || quote_ident(stmt.tablename) || ' CASCADE;'
-            END LOOP;
-              END;
-                $$ LANGUAGE plpgsql;
-                  SELECT truncate_tables('postgres');
-    `)
-
-  })
 
   afterAll(async () => {
     await app.close();
@@ -52,14 +38,12 @@ describe('e2e tests', () => {
   describe('Users route tests.', () => {
     const errorsMessages = createErrorMessage(['login', 'password', 'email']);
 
-    it('Delete all data', async () => {
-      const collections = connection.collections;
-
-      for (const key in collections) {
-        const collection = collections[key];
-        await collection.deleteMany({});
+    it('Delete all data', () => {
+      request(server)
+        .delete('/testing/all-data')
+        .expect(204)
       }
-    })
+    )
 
     it('Shouldn`t create new user. 401 - Unauthorized.', () => {
 
@@ -295,6 +279,13 @@ describe('e2e tests', () => {
     it('Should resending confirmation code. 204 - Input data is accepted.Email with confirmation code will be send.', () => {
       request(server)
         .post('auth/registration-email-resending')
+        .send(preparedUser.valid.email)
+        .expect(204)
+    })
+
+    it('Should resending confirmation code. 204 - Input data is accepted.Email with confirmation code will be send.', () => {
+      request(server)
+        .post('auth/email-confirmation')
         .send(preparedUser.valid.email)
         .expect(204)
     })

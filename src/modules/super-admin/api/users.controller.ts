@@ -17,14 +17,15 @@ import { QueryParametersDto } from '../../../global-model/query-parameters.dto';
 import { UserDTO } from './dto/userDTO';
 import { UserViewModel } from './dto/userView.model';
 import { BanUserDTO } from './dto/ban-user.dto';
-import { CreateUserUseCase } from '../use-cases/create-user.use-case';
+import { CreateUserBySaUseCase } from '../use-cases/create-user-by-sa.use-case';
+import { v4 as uuidv4 } from 'uuid';
 
 @UseGuards(AuthBasicGuard)
 @Controller('sa/users')
 export class UsersController {
   constructor(
     protected usersService: UsersService,
-    protected createUserUseCase: CreateUserUseCase,
+    protected createUserUseCase: CreateUserBySaUseCase,
   ) {}
 
   @Get()
@@ -37,8 +38,9 @@ export class UsersController {
 
   @Post()
   async createUser(@Body() dto: UserDTO): Promise<UserViewModel> {
-    const creator = 'sa'
-    const result = await this.createUserUseCase.execute(dto, creator);
+    const userId = uuidv4();
+    const emailConfirmation = await this.createUserUseCase.execute(userId)
+    const result = await this.usersService.createUser(dto, emailConfirmation, userId);
 
     return result.user;
   }

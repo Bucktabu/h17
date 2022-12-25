@@ -3,7 +3,7 @@ import nodemailer from 'nodemailer';
 
 @Injectable()
 export class EmailAdapters {
-  async sendEmail(email: string, subject: string, message: string) {
+  async sendEmail(email: string, subject: string, message: string): Promise<void> {
     const transport = await nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -12,13 +12,13 @@ export class EmailAdapters {
       },
     });
 
-    const info = await transport.sendMail({
+     await transport.sendMail({
       from: 'MyBack-End <buckstabu030194@gmail.com>',
       to: email,
       subject: subject,
       html: message,
     });
 
-    return info;
+    return
   }
 }

@@ -8,22 +8,6 @@ import { UserDeviceModel } from "./entity/userDevice.model";
 export class PgSecurityRepository {
   constructor(@InjectDataSource() private dataSource: DataSource) {}
 
-  async getAllActiveSessions(userId: string): Promise<DeviceSecurityModel[]> {
-    return await this.dataSource.query(`
-      SELECT user_id as "userId", device_id as "deviceId", device_title as "deviceTitle", browser as "browser", ip_address as "ipAddress", iat, exp
-        FROM public.security_device
-       WHERE user_id = ${userId};
-    `)
-  }
-
-  async getDeviseById(deviceId: string): Promise<DeviceSecurityModel | null> {
-    return await this.dataSource.query(`
-      SELECT user_id as "userId", device_id as "deviceId", device_title as "deviceTitle", browser as "browser", ip_address as "ipAddress", iat, exp
-        FROM public.security_device
-       WHERE device_id = ${deviceId};
-    `)
-  }
-
   async createUserDevice(
     createDevice: UserDeviceModel,
   ): Promise<DeviceSecurityModel | null> {

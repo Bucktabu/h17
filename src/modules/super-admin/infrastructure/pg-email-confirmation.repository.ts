@@ -37,24 +37,26 @@ export class PgEmailConfirmationRepository {
   }
 
   async createEmailConfirmation(emailConfirmation: EmailConfirmationModel): Promise<EmailConfirmationModel | null> {
+    console.log(emailConfirmation);
     try {
       await this.dataSource.query(`
-        INSERT INTO public.users 
-          (confirmation_code, expiration_date, is_confirmed)
-          VALUES (${emailConfirmation.confirmationCode}, ${emailConfirmation.expirationDate}, ${emailConfirmation.isConfirmed});
+        INSERT INTO public.email_confirmation 
+            (user_id, confirmation_code, expiration_date, is_confirmed)
+                VALUES ('${emailConfirmation.id}', null, null, '${emailConfirmation.isConfirmed}')
         `)
       return emailConfirmation
     } catch (e) {
+      console.log(e, 'asdf');
       return null
     }
   }
 
-  async updateConfirmationInfo(idOrCode: string): Promise<boolean> {
+  async updateConfirmationInfo(confirmation_code: string): Promise<boolean> {
     try {
       await this.dataSource.query(`
         UPDATE public.email_confirmation
            SET is_confirmed = true
-         WHERE user_id = ${idOrCode} OR confirmation_code = ${idOrCode};
+         WHERE confirmation_code = '${confirmation_code}';
       `)
     } catch (e) {
       return false
@@ -69,8 +71,8 @@ export class PgEmailConfirmationRepository {
     try {
       await this.dataSource.query(`
         UPDATE public.email_confirmation
-           SET confirmation_code = ${confirmationCode}, expiration_date = ${expirationDate} // TODO если необязательный параметр не пришел не перезапишет ли на пустое значение
-         WHERE user_id = ${userId};
+           SET confirmation_code = '${confirmationCode}', expiration_date = '${expirationDate}' // TODO если необязательный параметр не пришел не перезапишет ли на пустое значение
+         WHERE user_id = '${userId}';
       `)
       return true
     } catch (e) {
@@ -82,7 +84,7 @@ export class PgEmailConfirmationRepository {
     try {
       await this.dataSource.query(`
         DELETE FROM public.email_confirmation
-         WHERE user_id = ${userId};
+         WHERE user_id = '${userId}';
       `)
       return true
     } catch (e) {

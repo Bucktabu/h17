@@ -37,7 +37,7 @@ export class RefreshTokenValidationGuard implements CanActivate {
       throw new UnauthorizedException();
     }
 
-    const user = await this.usersService.getUserByIdOrLoginOrEmail(
+    const user = await this.usersService.getUserById(
       tokenPayload.userId,
     );
 

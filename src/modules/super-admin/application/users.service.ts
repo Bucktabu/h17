@@ -13,6 +13,14 @@ import { PgEmailConfirmationRepository } from "../infrastructure/pg-email-confir
 import { BanInfoEntity } from "../infrastructure/entity/ban-info.entity";
 import { PgBanInfoRepository } from "../infrastructure/pg-ban-info.repository";
 import { ContentPageModel } from "../../../global-model/contentPage.model";
+import { _generateHash } from '../../../helper.functions';
+import { UserDTO } from '../api/dto/userDTO';
+import { CreateUserBySaUseCase } from '../use-cases/create-user-by-sa.use-case';
+import { BanInfoModel } from '../infrastructure/entity/banInfo.model';
+import { toCreateUserViewModel } from 'src/data-mapper/to-create-user-view.model';
+import { EmailConfirmation } from '../infrastructure/entity/emailConfirm.scheme';
+import { UserViewModelWithBanInfo } from '../api/dto/userView.model';
+import { PgQueryUsersRepository } from '../infrastructure/pg-query-users.repository';
 
 @Injectable()
 export class UsersService {
@@ -20,17 +28,22 @@ export class UsersService {
     protected banInfoRepository: PgBanInfoRepository,
     protected emailConfirmationRepository: PgEmailConfirmationRepository,
     protected usersRepository: PgUsersRepository,
+    protected queryUsersRepository: PgQueryUsersRepository,
   ) {}
 
-  async getUserByIdOrLoginOrEmail(
-    IdOrLoginOrEmail: string,
+  async getUserByLoginOrEmail(
+    LoginOrEmail: string,
   ): Promise<UserDBModel | null> {
-    return this.usersRepository.getUserByIdOrLoginOrEmail(IdOrLoginOrEmail);
+    return this.queryUsersRepository.getUserByLoginOrEmail(LoginOrEmail);
+  }
+
+  async getUserById(id: string): Promise<UserDBModel | null> {
+    return this.queryUsersRepository.getUserById(id)
   }
 
   async getUsers(query: QueryParametersDto): Promise<ContentPageModel> {
-    const users = await this.usersRepository.getUsers(query);
-    const totalCount = await this.usersRepository.getTotalCount(query)
+    const users = await this.queryUsersRepository.getUsers(query);
+    const totalCount = await this.queryUsersRepository.getTotalCount(query)
 
     return paginationContentPage(
       query.pageNumber,
@@ -38,6 +51,36 @@ export class UsersService {
       users,
       totalCount,
     );
+  }
+
+  async createUser(dto: UserDTO, emailConfirmation: EmailConfirmation, userId: string) {
+    const hash = await _generateHash(dto.password);
+
+    const accountData = new UserDBModel(
+      userId,
+      dto.login,
+      dto.email,
+      hash.passwordSalt,
+      hash.passwordHash,
+      new Date().toISOString(),
+    );
+
+    const banInfo = new BanInfoModel(
+      userId,
+      false,
+      null,
+      null,
+      null,
+    );
+
+    await this.usersRepository.createUser(accountData);
+    await this.banInfoRepository.createBanInfo(banInfo);
+    const createdUser: UserViewModelWithBanInfo = toCreateUserViewModel(accountData, banInfo);
+
+    return {
+      user: createdUser,
+      code: emailConfirmation.confirmationCode,
+    };
   }
 
   async updateBanStatus(userId: string, dto: BanUserDTO) {

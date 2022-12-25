@@ -18,7 +18,6 @@ import { SecurityService } from '../../security/application/security.service';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { AuthDTO } from './dto/authDTO';
 import { EmailDTO } from './dto/emailDTO';
-import { NewPasswordDTO } from './dto/newPasswordDTO';
 import { RegistrationConfirmationDTO } from './dto/registration-confirmation.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { EmailManager } from '../email-transfer/email.manager';
@@ -32,7 +31,7 @@ import { CheckCredentialGuard } from '../../../../guards/check-credential.guard'
 import { UserDTO } from '../../../super-admin/api/dto/userDTO';
 import { EmailResendingValidationPipe } from '../../../../pipe/email-resending.pipe';
 import { RefreshTokenValidationGuard } from '../../../../guards/refresh-token-validation.guard';
-import { CreateUserUseCase } from '../../../super-admin/use-cases/create-user.use-case';
+import { CreateUserUseCase } from 'src/modules/super-admin/use-cases/create-user.use-case';
 
 @Controller('auth')
 export class AuthController {
@@ -81,7 +80,7 @@ export class AuthController {
   @Post('password-recovery')
   @HttpCode(204)
   async passwordRecovery(@Body() dto: EmailDTO) {
-    const user = await this.usersService.getUserByIdOrLoginOrEmail(dto.email);
+    const user = await this.usersService.getUserByLoginOrEmail(dto.email);
 
     if (!user) {
       const result = await this.authService.sendPasswordRecovery(
@@ -101,13 +100,9 @@ export class AuthController {
   @Post('registration')
   @HttpCode(204)
   async registration(@Body() dto: UserDTO) {
-    const creator = 'user'
-    const createdUser = await this.createUserUseCase.execute(dto, creator);
-
-    this.emailManager.sendConfirmationEmail(
-      createdUser.user.email,
-      createdUser.code,
-    );
+    const userId = uuidv4();
+    const emailConfirmation = await this.createUserUseCase.execute(userId, dto.email)
+    await this.usersService.createUser(dto, emailConfirmation, userId)
 
     return;
   }
@@ -134,7 +129,7 @@ export class AuthController {
   @HttpCode(204)
   async registrationEmailResending(
     @Body(EmailResendingValidationPipe) user: UserDBModel,
-  ) {
+  ): Promise<void> {
     const newConfirmationCode = await this.authService.updateConfirmationCode(
       user.id,
     );

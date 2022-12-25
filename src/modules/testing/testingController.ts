@@ -8,13 +8,14 @@ export class TestingController {
   }
 
   @Delete('all-data')
+  @HttpCode(204)
   async deleteAll() {
     await this.dataSource.query(`
-      DELETE FROM users
-      DELETE FROM user_ban_info
-      DELETE FROM device_security
-      DELETE FROM email_confirmation
-      DELETE FROM token_black_list
+      DELETE FROM users;
+      DELETE FROM user_ban_info;
+      DELETE FROM device_security;
+      DELETE FROM email_confirmation;
+      DELETE FROM token_black_list;
     `)
   }
 

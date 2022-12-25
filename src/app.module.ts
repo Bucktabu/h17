@@ -14,7 +14,7 @@ import { EmailExistValidator } from './validation/email-exist-validator.service'
 import { EmailResendingValidationPipe } from './pipe/email-resending.pipe';
 import { LoginExistValidator } from './validation/login-exist-validator.service';
 import { ConfirmationCodeValidator } from './validation/confirmation-code.validator';
-import { CreateUserUseCase } from './modules/super-admin/use-cases/create-user.use-case';
+import { CreateUserBySaUseCase } from './modules/super-admin/use-cases/create-user-by-sa.use-case';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PgJwtRepository } from "./modules/public/auth/infrastructure/pg-jwt.repository";
 import { UsersService } from "./modules/super-admin/application/users.service";
@@ -26,6 +26,9 @@ import { EmailConfirmationEntity } from "./modules/super-admin/infrastructure/en
 import { UserEntity } from "./modules/super-admin/infrastructure/entity/user.entity";
 import { PgSecurityRepository } from "./modules/public/security/infrastructure/pg-security.repository";
 import { settings } from "./settings";
+import { PgQuerySecurityRepository } from './modules/public/security/infrastructure/pg-query-security.repository';
+import { CreateUserUseCase } from './modules/super-admin/use-cases/create-user.use-case';
+import { PgQueryUsersRepository } from './modules/super-admin/infrastructure/pg-query-users.repository';
 
 const controllers = [
   AuthController,
@@ -51,7 +54,9 @@ const repositories = [
   PgEmailConfirmationRepository,
   PgJwtRepository,
   PgSecurityRepository,
-  PgUsersRepository
+  PgQuerySecurityRepository,
+  PgUsersRepository,
+  PgQueryUsersRepository
 ];
 
 const services = [
@@ -66,7 +71,7 @@ const services = [
 
 const validators = [/*BlogExistValidator,*/ ConfirmationCodeValidator];
 
-const useCases = [CreateUserUseCase];
+const useCases = [CreateUserUseCase, CreateUserBySaUseCase];
 
 @Module({
   imports: [

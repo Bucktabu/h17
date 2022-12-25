@@ -7,17 +7,18 @@ import {
 import { InjectRepository } from "@nestjs/typeorm";
 import { UserEntity } from "../modules/super-admin/infrastructure/entity/user.entity";
 import { PgUsersRepository } from "../modules/super-admin/infrastructure/pg-users.repository";
+import { PgQueryUsersRepository } from "../modules/super-admin/infrastructure/pg-query-users.repository";
 
 @Injectable()
 @ValidatorConstraint({ name: 'login', async: true })
 export class LoginExistValidator implements ValidatorConstraintInterface {
   constructor(
-    protected usersRepository: PgUsersRepository,
+    protected queryUsersRepository: PgQueryUsersRepository,
   ) {
   }
 
   async validate(login) {
-    const user = await this.usersRepository.getUserByIdOrLoginOrEmail(login);
+    const user = await this.queryUsersRepository.getUserByLoginOrEmail(login);
 
     if (user) {
       return false;
