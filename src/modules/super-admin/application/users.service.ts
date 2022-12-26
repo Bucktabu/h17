@@ -75,6 +75,9 @@ export class UsersService {
 
     await this.usersRepository.createUser(accountData);
     await this.banInfoRepository.createBanInfo(banInfo);
+    await this.emailConfirmationRepository.createEmailConfirmation(
+      emailConfirmation,
+    )
     const createdUser: UserViewModelWithBanInfo = toCreateUserViewModel(accountData, banInfo);
 
     return {

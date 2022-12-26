@@ -17,10 +17,7 @@ export class CreateUserBySaUseCase {
       true,
     );
 
-    await this.emailConfirmationRepository.createEmailConfirmation(
-      emailConfirmation,
-    )
-
-    return emailConfirmation
+    const user = await this.usersService.createUser()
+    return {user.id,}
   }
 }

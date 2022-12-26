@@ -21,10 +21,6 @@ export class CreateUserUseCase {
       false,
     );
 
-    await this.emailConfirmationRepository.createEmailConfirmation(
-      emailConfirmation,
-    )
-
     this.emailManager.sendConfirmationEmail(
       email,
       emailConfirmation.confirmationCode,
