@@ -100,7 +100,7 @@ export class AuthController {
   @Post('registration')
   @HttpCode(204)
   async registration(@Body() dto: UserDto) {
-    const emailConfirmation = await this.createUserUseCase.execute(dto)
+    await this.createUserUseCase.execute(dto)
 
     return;
   }

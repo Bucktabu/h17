@@ -45,10 +45,10 @@ export class PgQueryUsersRepository {
     //    ORDER BY "${query.sortBy}" ${query.sortDirection}
     //    LIMIT ${query.pageSize} OFFSET ${giveSkipNumber(query.pageNumber, query.pageSize)};
     // `)
-    try {
-      const usersDB = await this.dataSource.query(`
+    const usersDB = await this.dataSource.query(`
       SELECT u.id, u.login, u.email, u.created_at as "createdAt",
-             b.ban_status as "isBanned", b.ban_date as "banDate", b.ban_reason as "banReason"
+             b.ban_status as "isBanned", b.ban_date as "banDate", b.ban_reason as "banReason",
+             (SELECT COUNT(*) FROM public.users)
         FROM public.users u
         LEFT JOIN public.user_ban_info b
           ON u.id = b.user_id
@@ -56,24 +56,24 @@ export class PgQueryUsersRepository {
        ORDER BY "${query.sortBy}" ${query.sortDirection}
        LIMIT ${query.pageSize} OFFSET ${giveSkipNumber(query.pageNumber, query.pageSize)};
     `)
-      const users = usersDB.map(u => {
-        return {
-          id: u.id,
-          login: u.login,
-          email: u.email,
-          createdAt: u.createdAt,
-          banInfo: {
-            isBanned: u.isBanned,
-            banDate: u.banDate,
-            banReason: u.banReason
-          }
-        }
-      })
 
-      return users
-    } catch (e) {
-      console.log(e)
-    }
+    console.log(usersDB)
+
+    const users = usersDB.map(u => {
+      return {
+        id: u.id,
+        login: u.login,
+        email: u.email,
+        createdAt: u.createdAt,
+        banInfo: {
+          isBanned: u.isBanned,
+          banDate: u.banDate,
+          banReason: u.banReason
+        }
+      }
+    })
+
+    return users
   }
 
   async getTotalCount(query: QueryParametersDto): Promise<number> {
@@ -114,7 +114,7 @@ export class PgQueryUsersRepository {
     const {searchLoginTerm} = query
     const {searchEmailTerm} = query
 
-    const login = `LOWER(login) LIKE '%${searchLoginTerm.toLowerCase()}%'`
+    const login = `LOWER(login) LIKE '%${searchLoginTerm.toLowerCase()}%'` // ILIKE
     const email = `LOWER(login) LIKE '%${searchEmailTerm.toLowerCase()}%'`
 
     if (searchLoginTerm && searchEmailTerm) {
