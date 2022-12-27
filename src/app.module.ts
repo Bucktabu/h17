@@ -78,7 +78,7 @@ const useCases = [CreateUserUseCase, CreateUserBySaUseCase];
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      url: process.env.POSTGRES_URI2
+      url: process.env.POSTGRES_URI
       // host: 'localhost',
       // port: Number(settings.postgres.PORT),
       // username: settings.postgres.USERNAME,

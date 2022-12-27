@@ -28,7 +28,7 @@ import { UserDBModel } from '../../../super-admin/infrastructure/entity/userDB.m
 import { User } from '../../../../decorator/user.decorator';
 import { toAboutMeViewModel } from '../../../../data-mapper/to-about-me-view.model';
 import { CheckCredentialGuard } from '../../../../guards/check-credential.guard';
-import { UserDTO } from '../../../super-admin/api/dto/userDTO';
+import { UserDto } from '../../../super-admin/api/dto/userDto';
 import { EmailResendingValidationPipe } from '../../../../pipe/email-resending.pipe';
 import { RefreshTokenValidationGuard } from '../../../../guards/refresh-token-validation.guard';
 import { CreateUserUseCase } from 'src/modules/super-admin/use-cases/create-user.use-case';
@@ -99,10 +99,8 @@ export class AuthController {
   //@UseGuards(ThrottlerGuard)
   @Post('registration')
   @HttpCode(204)
-  async registration(@Body() dto: UserDTO) {
-    const userId = uuidv4();
-    const emailConfirmation = await this.createUserUseCase.execute(userId, dto.email)
-    await this.usersService.createUser(dto, emailConfirmation, userId)
+  async registration(@Body() dto: UserDto) {
+    const emailConfirmation = await this.createUserUseCase.execute(dto)
 
     return;
   }

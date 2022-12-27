@@ -14,11 +14,10 @@ import {
 import { AuthBasicGuard } from '../../../guards/auth.basic.guard';
 import { UsersService } from '../application/users.service';
 import { QueryParametersDto } from '../../../global-model/query-parameters.dto';
-import { UserDTO } from './dto/userDTO';
+import { UserDto } from './dto/userDto';
 import { UserViewModel } from './dto/userView.model';
 import { BanUserDTO } from './dto/ban-user.dto';
 import { CreateUserBySaUseCase } from '../use-cases/create-user-by-sa.use-case';
-import { v4 as uuidv4 } from 'uuid';
 
 @UseGuards(AuthBasicGuard)
 @Controller('sa/users')
@@ -37,12 +36,10 @@ export class UsersController {
   }
 
   @Post()
-  async createUser(@Body() dto: UserDTO): Promise<UserViewModel> {
-    const userId = uuidv4();
-    const emailConfirmation = await this.createUserUseCase.execute(userId)
-    const result = await this.usersService.createUser(dto, emailConfirmation, userId);
+  async createUser(@Body() dto: UserDto): Promise<UserViewModel> {
+    const user = await this.createUserUseCase.execute(dto)
 
-    return result.user;
+    return user;
   }
 
   @Put(':userId/ban')

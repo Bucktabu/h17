@@ -37,7 +37,6 @@ export class PgEmailConfirmationRepository {
   }
 
   async createEmailConfirmation(emailConfirmation: EmailConfirmationModel): Promise<EmailConfirmationModel | null> {
-    console.log(emailConfirmation.id, 'emailConfirmation`s id from create email confirmation');
     try {
       await this.dataSource.query(`
         INSERT INTO public.email_confirmation 
@@ -46,7 +45,6 @@ export class PgEmailConfirmationRepository {
         `)
       return emailConfirmation
     } catch (e) {
-      console.log(e, 'asdf');
       return null
     }
   }

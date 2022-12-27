@@ -9,7 +9,6 @@ export class PgUsersRepository {
   }
 
   async createUser(newUser: UserDBModel): Promise<UserDBModel | null> {
-    console.log(newUser.id, 'user`s id from create user')
     try {
       await this.dataSource.query(`
         INSERT INTO public.users

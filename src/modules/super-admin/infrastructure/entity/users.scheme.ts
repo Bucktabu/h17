@@ -1,6 +1,6 @@
 import mongoose, { HydratedDocument, Model } from 'mongoose';
 import { UserDBModel } from './userDB.model';
-import { UserDTO } from '../../api/dto/userDTO';
+import { UserDto } from '../../api/dto/userDto';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 // const usersScheme = new mongoose.Schema<UserDBModel /*, UserModelStaticType*/>({

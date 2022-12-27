@@ -27,17 +27,17 @@ export class QueryParametersDto {
   pageSize = 10;
 
   @IsString()
-  @Transform(({ value }) => value?.trim())
+  @Transform(({ value }) => value?.trim().toLowerCase())
   @IsOptional()
   searchNameTerm = '';
 
   @IsString()
-  @Transform(({ value }) => value?.trim())
+  @Transform(({ value }) => value?.trim().toLowerCase())
   @IsOptional()
   searchLoginTerm = '';
 
   @IsString()
-  @Transform(({ value }) => value?.trim())
+  @Transform(({ value }) => value?.trim().toLowerCase())
   @IsOptional()
   searchEmailTerm = '';
 }

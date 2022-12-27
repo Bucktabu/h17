@@ -1,6 +1,6 @@
 import supertest from 'supertest';
 import { INestApplication } from '@nestjs/common';
-import { UserDTO } from '../../src/modules/super-admin/api/dto/userDTO';
+import { UserDto } from '../../src/modules/super-admin/api/dto/userDto';
 import { createErrorMessage } from './helpers';
 
 const errorsMessage = createErrorMessage(['login', 'password', 'email']);
@@ -8,7 +8,7 @@ const errorsMessage = createErrorMessage(['login', 'password', 'email']);
 export const registrationNewUser = async (
   request: typeof supertest,
   app: INestApplication,
-  body: UserDTO,
+  body: UserDto,
   statusCode: number,
   error: boolean,
 ) => {

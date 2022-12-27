@@ -11,7 +11,7 @@ import { EmailExistValidator } from '../../../../validation/email-exist-validato
 import { LoginExist } from '../../../../decorator/login-exist.decorator';
 import { LoginExistValidator } from '../../../../validation/login-exist-validator.service';
 
-export class UserDTO {
+export class UserDto {
   @IsString()
   @Transform(({ value }) => value?.trim())
   @Validate(LoginExistValidator)

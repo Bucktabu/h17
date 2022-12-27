@@ -14,7 +14,7 @@ import { BanInfoEntity } from "../infrastructure/entity/ban-info.entity";
 import { PgBanInfoRepository } from "../infrastructure/pg-ban-info.repository";
 import { ContentPageModel } from "../../../global-model/contentPage.model";
 import { _generateHash } from '../../../helper.functions';
-import { UserDTO } from '../api/dto/userDTO';
+import { UserDto } from '../api/dto/userDto';
 import { CreateUserBySaUseCase } from '../use-cases/create-user-by-sa.use-case';
 import { BanInfoModel } from '../infrastructure/entity/banInfo.model';
 import { toCreateUserViewModel } from 'src/data-mapper/to-create-user-view.model';
@@ -53,10 +53,10 @@ export class UsersService {
     );
   }
 
-  async createUser(dto: UserDTO, emailConfirmation: EmailConfirmation, userId: string) {
+  async createUser(dto: UserDto, emailConfirmation: EmailConfirmation, userId: string) {
     const hash = await _generateHash(dto.password);
 
-    const accountData = new UserDBModel(
+    const user = new UserDBModel(
       userId,
       dto.login,
       dto.email,
@@ -73,17 +73,13 @@ export class UsersService {
       null,
     );
 
-    await this.usersRepository.createUser(accountData);
+    await this.usersRepository.createUser(user);
     await this.banInfoRepository.createBanInfo(banInfo);
     await this.emailConfirmationRepository.createEmailConfirmation(
       emailConfirmation,
     )
-    const createdUser: UserViewModelWithBanInfo = toCreateUserViewModel(accountData, banInfo);
 
-    return {
-      user: createdUser,
-      code: emailConfirmation.confirmationCode,
-    };
+    return {user, banInfo}
   }
 
   async updateBanStatus(userId: string, dto: BanUserDTO) {
