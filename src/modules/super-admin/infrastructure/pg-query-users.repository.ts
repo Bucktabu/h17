@@ -14,44 +14,50 @@ export class PgQueryUsersRepository {
   }
 
   async getUserByLoginOrEmail(loginOrEmail: string): Promise<UserDBModel | null> {
-    const result = await this.dataSource.query(`
-        SELECT id, login, email, password_hash as "passwordHash", password_salt as "passwordSalt", created_at as "createdAt"
-          FROM public.users
-         WHERE login = '${loginOrEmail}' OR email = '${loginOrEmail}'
-    `)
+    const query = `
+      SELECT id, login, email, password_hash as "passwordHash", password_salt as "passwordSalt", created_at as "createdAt"
+        FROM public.users
+       WHERE login = $1 OR email = $1
+    `
+    const result = await this.dataSource.query(query, [loginOrEmail])
 
     return result[0]
   }
 
-	async getUserById(id: string):Promise<UserDBModel | null> {
-    const result = await this.dataSource.query(`
-        SELECT id, login, email, password_hash as "passwordHash", password_salt as "passwordSalt", created_at as "createdAt"
-          FROM public.users
-         WHERE id = '${id}';
-    `)
+	async getUserById(userId: string):Promise<UserDBModel | null> {
+    const query = `
+      SELECT id, login, email, password_hash as "passwordHash", password_salt as "passwordSalt", created_at as "createdAt"
+        FROM public.users
+       WHERE id = $1;
+    `
+    const result = await this.dataSource.query(query, [userId])
 
     return result[0]
   }
 
-  async getUsers(query: QueryParametersDto): Promise<ContentPageModel> {
-    const filter = this.getFilter(query)
+  async getUsers(queryDto: QueryParametersDto): Promise<ContentPageModel> {
+    const filter = this.getFilter(queryDto)
 
-    const usersDB = await this.dataSource.query(`
+    const query = `
       SELECT u.id, u.login, u.email, u.created_at as "createdAt",
              b.ban_status as "isBanned", b.ban_date as "banDate", b.ban_reason as "banReason"
         FROM public.users u
         LEFT JOIN public.user_ban_info b
           ON u.id = b.user_id
        WHERE ${filter}
-       ORDER BY "${query.sortBy}" ${query.sortDirection}
-       LIMIT ${query.pageSize} OFFSET ${giveSkipNumber(query.pageNumber, query.pageSize)};
-    `)
+       ORDER BY "${queryDto.sortBy}" ${queryDto.sortDirection}
+       LIMIT ${queryDto.pageSize} OFFSET ${giveSkipNumber(queryDto.pageNumber, queryDto.pageSize)};
+    `
+
+    const usersDB = await this.dataSource.query(query, /*[
+        queryDto.sortBy, queryDto.sortDirection, queryDto.pageSize
+    ]*/)
 
     const users = usersDB.map(u => toUserViewModel(u))
 
     return paginationContentPage(
-        query.pageNumber,
-        query.pageSize,
+        queryDto.pageNumber,
+        queryDto.pageSize,
         users,
         usersDB.length,
     );

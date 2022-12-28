@@ -9,23 +9,27 @@ export class PgUsersRepository {
   }
 
   async createUser(newUser: UserDBModel): Promise<UserDBModel | null> {
-    try {
-      await this.dataSource.query(`
-        INSERT INTO public.users
-        (id, login, email, password_salt, password_hash, created_at)
-          VALUES ('${newUser.id}', '${newUser.login}', '${newUser.email}', '${newUser.passwordSalt}', '${newUser.passwordHash}', '${newUser.createdAt}'); 
-        `)
-      return newUser
-    } catch (e) {
-      return null
-    }
+    const query = `
+      INSERT INTO public.users
+             (id, login, email, password_salt, password_hash, created_at)
+      VALUES ($1, $2, $3, $4, $5, $6)
+             RETURNING (id, login, email, created_at)
+    `
+
+    const result = await this.dataSource.query(query, [
+      newUser.id, newUser.login, newUser.email, newUser.passwordSalt, newUser.passwordHash, newUser.createdAt
+    ])
+
+    return result[0].row.slice(1, -1).split(',') // TODO check
   }
 
   async deleteUserById(userId: string): Promise<boolean> {
-    const result = await this.dataSource.query(`
-        DELETE FROM public.users
-         WHERE id = '${userId}';
-      `)
+    const query = `
+      DELETE FROM public.users
+       WHERE id = $1;
+    `
+
+    const result = await this.dataSource.query(query, [userId])
 
     if (result[1] !== 1) {
       return false
