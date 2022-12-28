@@ -2,10 +2,11 @@ import { Injectable } from "@nestjs/common";
 import { InjectDataSource } from "@nestjs/typeorm";
 import { DataSource } from "typeorm";
 import { QueryParametersDto } from "../../../global-model/query-parameters.dto";
-import { UserViewModelWithBanInfo } from "../api/dto/userView.model";
-import { giveSkipNumber } from "../../../helper.functions";
+import {giveSkipNumber, paginationContentPage} from "../../../helper.functions";
 import { UserDBModel } from "./entity/userDB.model";
 import {BanStatusModel} from "../../../global-model/ban-status.model";
+import {toUserViewModel} from "../../../data-mapper/to-create-user-view.model";
+import {ContentPageModel} from "../../../global-model/contentPage.model";
 
 @Injectable()
 export class PgQueryUsersRepository {
@@ -32,59 +33,28 @@ export class PgQueryUsersRepository {
     return result[0]
   }
 
-  async getUsers(query: QueryParametersDto): Promise<UserViewModelWithBanInfo[]> {
+  async getUsers(query: QueryParametersDto): Promise<ContentPageModel> {
     const filter = this.getFilter(query)
 
-    // const usersDB = await this.dataSource.query(`
-    //   SELECT id, login, email, created_at,
-    //          (SELECT ban_status as "isBanned" FROM public.user_ban_info WHERE id = user_id),
-    //          (SELECT ban_date as "banDate" FROM public.user_ban_info WHERE id = user_id),
-    //          (SELECT ban_reason as "banReason" FROM public.user_ban_info WHERE id = user_id)
-    //     FROM public.users
-    //          ${filter}
-    //    ORDER BY "${query.sortBy}" ${query.sortDirection}
-    //    LIMIT ${query.pageSize} OFFSET ${giveSkipNumber(query.pageNumber, query.pageSize)};
-    // `)
     const usersDB = await this.dataSource.query(`
       SELECT u.id, u.login, u.email, u.created_at as "createdAt",
-             b.ban_status as "isBanned", b.ban_date as "banDate", b.ban_reason as "banReason",
-             (SELECT COUNT(*) FROM public.users)
+             b.ban_status as "isBanned", b.ban_date as "banDate", b.ban_reason as "banReason"
         FROM public.users u
         LEFT JOIN public.user_ban_info b
           ON u.id = b.user_id
-             ${filter}
+       WHERE ${filter}
        ORDER BY "${query.sortBy}" ${query.sortDirection}
        LIMIT ${query.pageSize} OFFSET ${giveSkipNumber(query.pageNumber, query.pageSize)};
     `)
 
-    console.log(usersDB)
+    const users = usersDB.map(u => toUserViewModel(u))
 
-    const users = usersDB.map(u => {
-      return {
-        id: u.id,
-        login: u.login,
-        email: u.email,
-        createdAt: u.createdAt,
-        banInfo: {
-          isBanned: u.isBanned,
-          banDate: u.banDate,
-          banReason: u.banReason
-        }
-      }
-    })
-
-    return users
-  }
-
-  async getTotalCount(query: QueryParametersDto): Promise<number> {
-    const filter = this.getFilter(query)
-
-    const result = await this.dataSource.query(`
-     SELECT COUNT(*) FROM public.users
-            ${filter}
-    `)
-
-    return Number(result[0].count)
+    return paginationContentPage(
+        query.pageNumber,
+        query.pageSize,
+        users,
+        usersDB.length,
+    );
   }
 
   private getFilter(query: QueryParametersDto): string {
@@ -92,10 +62,10 @@ export class PgQueryUsersRepository {
     const userFilter = this.userFilter(query)
 
     if (banFilter && userFilter) {
-      return `WHERE ${banFilter} AND ${userFilter}`
+      return `${banFilter} AND ${userFilter}`
     }
-    if (banFilter) return `WHERE ${banFilter}`
-    if (userFilter) return `WHERE ${userFilter}`
+    if (banFilter) return `${banFilter}`
+    if (userFilter) return `${userFilter}`
     return ''
   }
 
@@ -114,8 +84,8 @@ export class PgQueryUsersRepository {
     const {searchLoginTerm} = query
     const {searchEmailTerm} = query
 
-    const login = `LOWER(login) LIKE '%${searchLoginTerm.toLowerCase()}%'` // ILIKE
-    const email = `LOWER(login) LIKE '%${searchEmailTerm.toLowerCase()}%'`
+    const login = `login ILIKE '%${searchLoginTerm}%'`
+    const email = `email ILIKE '%${searchEmailTerm}%'`
 
     if (searchLoginTerm && searchEmailTerm) {
       return `${login} OR ${email}`

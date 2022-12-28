@@ -6,12 +6,13 @@ import {
 } from '@nestjs/common';
 import { UsersService } from '../modules/super-admin/application/users.service';
 import { JwtService } from '../modules/public/auth/application/jwt.service';
+import {PgQueryUsersRepository} from "../modules/super-admin/infrastructure/pg-query-users.repository";
 
 @Injectable()
 export class AuthBearerGuard implements CanActivate {
   constructor(
     protected jwtService: JwtService,
-    protected usersService: UsersService,
+    protected queryUsersRepository: PgQueryUsersRepository,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -29,7 +30,7 @@ export class AuthBearerGuard implements CanActivate {
       throw new UnauthorizedException();
     }
 
-    const user = await this.usersService.getUserById(
+    const user = await this.queryUsersRepository.getUserById(
       tokenPayload.userId,
     );
 

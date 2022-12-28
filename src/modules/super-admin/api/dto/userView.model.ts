@@ -15,7 +15,7 @@ export class UserViewModelWithBanInfo {
     public createdAt: string,
     public banInfo: {
       isBanned: boolean;
-      banDate: Date;
+      banDate: string;
       banReason: string;
     },
   ) {}

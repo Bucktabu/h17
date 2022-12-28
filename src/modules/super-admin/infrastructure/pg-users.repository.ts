@@ -22,14 +22,14 @@ export class PgUsersRepository {
   }
 
   async deleteUserById(userId: string): Promise<boolean> {
-    try {
-      await this.dataSource.query(`
+    const result = await this.dataSource.query(`
         DELETE FROM public.users
-         WHERE id = ${userId};
+         WHERE id = '${userId}';
       `)
-      return true // скорее всего вне зависимости от результата операции вернет true
-    } catch (e) {
+
+    if (result[1] !== 1) {
       return false
     }
+    return true
   }
 }

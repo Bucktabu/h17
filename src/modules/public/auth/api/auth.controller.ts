@@ -4,7 +4,6 @@ import {
   Get,
   HttpCode,
   Ip,
-  NotFoundException,
   NotImplementedException,
   Post,
   Req,
@@ -31,7 +30,8 @@ import { CheckCredentialGuard } from '../../../../guards/check-credential.guard'
 import { UserDto } from '../../../super-admin/api/dto/userDto';
 import { EmailResendingValidationPipe } from '../../../../pipe/email-resending.pipe';
 import { RefreshTokenValidationGuard } from '../../../../guards/refresh-token-validation.guard';
-import { CreateUserUseCase } from 'src/modules/super-admin/use-cases/create-user.use-case';
+import {PgQueryUsersRepository} from "../../../super-admin/infrastructure/pg-query-users.repository";
+import {CreateUserUseCase} from "../../../super-admin/use-cases/create-user.use-case";
 
 @Controller('auth')
 export class AuthController {
@@ -42,7 +42,7 @@ export class AuthController {
     protected emailManager: EmailManager,
     protected emailConfirmationService: EmailConfirmationService,
     protected securityService: SecurityService,
-    protected usersService: UsersService,
+    protected queryUsersRepository: PgQueryUsersRepository,
   ) {}
 
   @UseGuards(AuthBearerGuard)
@@ -80,7 +80,7 @@ export class AuthController {
   @Post('password-recovery')
   @HttpCode(204)
   async passwordRecovery(@Body() dto: EmailDTO) {
-    const user = await this.usersService.getUserByLoginOrEmail(dto.email);
+    const user = await this.queryUsersRepository.getUserByLoginOrEmail(dto.email);
 
     if (!user) {
       const result = await this.authService.sendPasswordRecovery(

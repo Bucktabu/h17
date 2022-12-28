@@ -10,20 +10,16 @@ export class PgJwtRepository {
     return this.dataSource.query(`
       SELECT token
         FROM public.token_black_list
-       WHERE token = ${refreshToken};
+       WHERE token = '${refreshToken}';
     `);
   }
 
   async addTokenInBlackList(refreshToken: string): Promise<boolean> {
-    try {
-      await this.dataSource.query(`
+    await this.dataSource.query(`
         INSERT INTO public.token_black_list
-        (token)
-        VALUES (${refreshToken});
-      `)
-      return true;
-    } catch (e) {
-      return false;
-    }
+               (token)
+        VALUES ('${refreshToken}');
+    `)
+    return true
   }
 }

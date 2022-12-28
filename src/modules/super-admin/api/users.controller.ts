@@ -18,6 +18,7 @@ import { UserDto } from './dto/userDto';
 import { UserViewModel } from './dto/userView.model';
 import { BanUserDTO } from './dto/ban-user.dto';
 import { CreateUserBySaUseCase } from '../use-cases/create-user-by-sa.use-case';
+import {PgQueryUsersRepository} from "../infrastructure/pg-query-users.repository";
 
 @UseGuards(AuthBasicGuard)
 @Controller('sa/users')
@@ -25,6 +26,7 @@ export class UsersController {
   constructor(
     protected usersService: UsersService,
     protected createUserUseCase: CreateUserBySaUseCase,
+    protected queryUsersRepository: PgQueryUsersRepository,
   ) {}
 
   @Get()
@@ -32,7 +34,7 @@ export class UsersController {
     @Query()
     query: QueryParametersDto,
   ) {
-    return this.usersService.getUsers(query);
+    return this.queryUsersRepository.getUsers(query);
   }
 
   @Post()
@@ -48,7 +50,12 @@ export class UsersController {
     @Body() dto: BanUserDTO,
     @Param('userId') userId: string,
   ) {
-    return await this.usersService.updateBanStatus(userId, dto);
+    const result = await this.usersService.updateBanStatus(userId, dto);
+
+    if (!result) {
+      throw new NotFoundException()
+    }
+    return
   }
 
   @Delete(':id')

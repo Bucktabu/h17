@@ -6,8 +6,6 @@ import { banUserDto, preparedUser, superUser } from "./helper/prepeared-data";
 import { isEmail, isUUID } from "class-validator";
 import { createErrorMessage } from "./helper/helpers";
 import { createApp } from "../src/helpers/create-app";
-import { connection } from "mongoose";
-import { DataSource } from "typeorm";
 import { EmailManager } from "../src/modules/public/auth/email-transfer/email.manager";
 import { EmailManagerMock } from "./mock/emailAdapter.mock";
 
@@ -34,6 +32,12 @@ describe('e2e tests', () => {
   afterAll(async () => {
     await app.close();
   });
+
+  // it('Drop all data.', () => {
+  //   request(server)
+  //       .delete('/testing/all-data')
+  //       .expect(204)
+  // })
 
   describe('Users route tests.', () => {
     const errorsMessages = createErrorMessage(['login', 'password', 'email']);
@@ -113,7 +117,7 @@ describe('e2e tests', () => {
         .auth(superUser.valid.login, superUser.valid.password, { type: 'basic' })
         .expect(400)
 
-      const errorsMessages = createErrorMessage(['login', ' email'])
+      const errorsMessages = createErrorMessage(['login', 'password', 'email'])
       expect(response.body).toStrictEqual({ errorsMessages })
     })
 
@@ -143,7 +147,7 @@ describe('e2e tests', () => {
 
       const errorsMessage = createErrorMessage(['isBanned', 'banReason'])
 
-      expect(response.body).toStrictEqual(errorsMessage)
+      expect(response.body).toStrictEqual({ errorsMessages })
     })
 
     it('Should ban user. 204 - No content.', () => {
@@ -152,14 +156,14 @@ describe('e2e tests', () => {
       request(server)
         .put(`/sa/users/${user.id}/ban`)
         .set(banUserDto.valid)
-        .set({Authorization: 'Basic YWRtaW46cXdlcnR5'})
+          .auth(superUser.valid.login, superUser.valid.password, { type: 'basic' })
         .expect(204)
     })
 
     it('Shouldn`t return users. 401 - Unauthorized.', () => {
       request(server)
         .get('/sa/users')
-        .auth(`${superUser.notValid.login}2`, superUser.notValid.password, { type: 'basic' })
+        .auth(superUser.notValid.login, superUser.notValid.password, { type: 'basic' })
         .expect(401)
     })
 
@@ -168,7 +172,7 @@ describe('e2e tests', () => {
         .get('/sa/users')
         .auth(superUser.valid.login, superUser.valid.password, { type: 'basic' })
         .expect(200)
-
+      console.log(response.body)
       expect(response.body).toStrictEqual({
         pagesCount: 1,
         page: 1,

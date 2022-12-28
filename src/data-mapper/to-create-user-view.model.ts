@@ -1,4 +1,7 @@
-import { UserDBModel } from '../modules/super-admin/infrastructure/entity/userDB.model';
+import {
+  UserDBModel,
+  UserWithCountAndBanInfo,
+} from '../modules/super-admin/infrastructure/entity/userDB.model';
 import { BanInfoModel } from '../modules/super-admin/infrastructure/entity/banInfo.model';
 
 export const toCreateUserViewModel = (
@@ -17,3 +20,19 @@ export const toCreateUserViewModel = (
     },
   };
 };
+
+export const toUserViewModel = (
+    user: UserWithCountAndBanInfo
+) => {
+  return {
+    id: user.id,
+    login: user.login,
+    email: user.email,
+    createdAt: user.createdAt,
+    banInfo: {
+      isBanned: user.isBanned,
+      banDate: user.banDate,
+      banReason: user.banReason
+    }
+  }
+}

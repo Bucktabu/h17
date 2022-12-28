@@ -37,16 +37,14 @@ export class PgEmailConfirmationRepository {
   }
 
   async createEmailConfirmation(emailConfirmation: EmailConfirmationModel): Promise<EmailConfirmationModel | null> {
-    try {
-      await this.dataSource.query(`
-        INSERT INTO public.email_confirmation 
-            (user_id, confirmation_code, expiration_date, is_confirmed)
-                VALUES ('${emailConfirmation.id}', null, null, '${emailConfirmation.isConfirmed}')
-        `)
-      return emailConfirmation
-    } catch (e) {
-      return null
-    }
+    const filter = this.getCreateFilter(emailConfirmation)
+    await this.dataSource.query(`
+      INSERT INTO public.email_confirmation 
+             (user_id, confirmation_code, expiration_date, is_confirmed)
+      VALUES (${filter})
+    `)
+
+    return emailConfirmation
   }
 
   async updateConfirmationInfo(confirmation_code: string): Promise<boolean> {
@@ -88,5 +86,13 @@ export class PgEmailConfirmationRepository {
     } catch (e) {
       return false
     }
+  }
+
+  private getCreateFilter(emailConfirmation: EmailConfirmationModel): string {
+    let filter = `'${emailConfirmation.id}', null, null, '${emailConfirmation.isConfirmed}'`
+    if (emailConfirmation.confirmationCode !== null) {
+      return filter = `'${emailConfirmation.id}', '${emailConfirmation.confirmationCode}', '${emailConfirmation.expirationDate}', '${emailConfirmation.isConfirmed}'`
+    }
+    return filter
   }
 }
