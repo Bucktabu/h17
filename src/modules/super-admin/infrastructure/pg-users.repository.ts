@@ -1,26 +1,34 @@
 import { Injectable } from "@nestjs/common";
 import { DataSource } from "typeorm";
 import { InjectDataSource } from "@nestjs/typeorm";
-import { UserDBModel } from "./entity/userDB.model";
+import {CreatedUserModel, UserDBModel} from "./entity/userDB.model";
 
 @Injectable()
 export class PgUsersRepository {
   constructor(@InjectDataSource() private dataSource: DataSource) {
   }
 
-  async createUser(newUser: UserDBModel): Promise<UserDBModel | null> {
+  async createUser(newUser: UserDBModel): Promise<CreatedUserModel | null> {
     const query = `
       INSERT INTO public.users
              (id, login, email, password_salt, password_hash, created_at)
       VALUES ($1, $2, $3, $4, $5, $6)
-             RETURNING (id, login, email, created_at)
+             RETURNING (id, login, email, created_at);
     `
 
     const result = await this.dataSource.query(query, [
       newUser.id, newUser.login, newUser.email, newUser.passwordSalt, newUser.passwordHash, newUser.createdAt
     ])
 
-    return result[0].row.slice(1, -1).split(',') // TODO check
+    const userArr = result[0].row.slice(1, -1).split(',')
+    const user = {
+      id: userArr[0],
+      login: userArr[1],
+      email: userArr[2],
+      createdAt: userArr[3]
+    }
+
+    return user
   }
 
   async deleteUserById(userId: string): Promise<boolean> {

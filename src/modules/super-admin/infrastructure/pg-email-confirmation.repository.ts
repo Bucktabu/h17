@@ -11,52 +11,54 @@ export class PgEmailConfirmationRepository {
   async getEmailConfirmationByCodeOrId(
     codeOrId: string,
   ): Promise<EmailConfirmationModel | null> {
-    return await this.dataSource.query(`
+    const query = `
       SELECT user_id as "userId", confirmation_code as "confirmationCode", expiration_date as "expirationDate", is_confirmed as "isConfirmed"
         FROM public.email_confirmation
        WHERE user_id = '${codeOrId}' OR confirmation_code = '${codeOrId}';
-    `)
+    `
+    const result = await this.dataSource.query(query)
+    console.log(result, 'from email confirmation repo')
+    return result
   }
 
   async checkConfirmation(userId: string): Promise<boolean | null> {
-    try {
-      const result = await this.dataSource.query(`
-        SELECT is_confirmed
-          FROM public.email_confirmation;
-         WHERE user_id = '${userId}'
-      `)
+    const query = `
+      SELECT is_confirmed
+        FROM public.email_confirmation
+       WHERE user_id = '${userId}';
+    `
+    const result = await this.dataSource.query(query) // TODO не получается передать параметром по аналогии с удалением юзера
 
-      if (!result) {
-        return null
-      }
-
-      return true
-    } catch (e) {
-      return false
+    if (!result.length) {
+      return null
     }
+    return result[0].is_confirmed
   }
 
   async createEmailConfirmation(emailConfirmation: EmailConfirmationModel): Promise<EmailConfirmationModel | null> {
     const filter = this.getCreateFilter(emailConfirmation)
-    await this.dataSource.query(`
+    const query = `
       INSERT INTO public.email_confirmation 
              (user_id, confirmation_code, expiration_date, is_confirmed)
       VALUES (${filter})
-    `)
+    `
+    await this.dataSource.query(query)
 
     return emailConfirmation
   }
 
   async updateConfirmationInfo(confirmation_code: string): Promise<boolean> {
-    try {
-      await this.dataSource.query(`
-        UPDATE public.email_confirmation
-           SET is_confirmed = true
-         WHERE confirmation_code = '${confirmation_code}';
-      `)
-    } catch (e) {
+    const query = `
+      UPDATE public.email_confirmation
+         SET is_confirmed = true
+       WHERE confirmation_code = $1;
+    `
+    const result = await this.dataSource.query(query, [confirmation_code])
+
+    if (result[1] !== 1) {
       return false
     }
+    return true
   }
 
   async updateConfirmationCode(
@@ -64,28 +66,33 @@ export class PgEmailConfirmationRepository {
     confirmationCode: string,
     expirationDate?: Date,
   ): Promise<boolean> {
-    try {
-      await this.dataSource.query(`
-        UPDATE public.email_confirmation
-           SET confirmation_code = '${confirmationCode}', expiration_date = '${expirationDate}' // TODO если необязательный параметр не пришел не перезапишет ли на пустое значение
-         WHERE user_id = '${userId}';
-      `)
-      return true
-    } catch (e) {
+    const filter = this.getUpdateConfirmationCodeFilter(confirmationCode, expirationDate)
+    const query = `
+      UPDATE public.email_confirmation
+         SET ${filter}
+       WHERE user_id = '${userId}';
+    `
+
+    const result = await this.dataSource.query(query)
+
+    if (result[1] !== 1) {
       return false
     }
+    return true
   }
 
   async deleteEmailConfirmationById(userId: string): Promise<boolean> {
-    try {
-      await this.dataSource.query(`
-        DELETE FROM public.email_confirmation
-         WHERE user_id = '${userId}';
-      `)
-      return true
-    } catch (e) {
+    const query = `
+      DELETE FROM public.email_confirmation
+       WHERE user_id = $1;
+    `
+
+    const result = await this.dataSource.query(query, [userId])
+
+    if (result[1] !== 1) {
       return false
     }
+    return true
   }
 
   private getCreateFilter(emailConfirmation: EmailConfirmationModel): string {
@@ -94,5 +101,12 @@ export class PgEmailConfirmationRepository {
       return filter = `'${emailConfirmation.id}', '${emailConfirmation.confirmationCode}', '${emailConfirmation.expirationDate}', '${emailConfirmation.isConfirmed}'`
     }
     return filter
+  }
+
+  private getUpdateConfirmationCodeFilter(confirmationCode: string, expirationDate?: Date): string {
+    if (!expirationDate) {
+      return `confirmation_code = '${confirmationCode}'`
+    }
+    return `confirmation_code = '${confirmationCode}', expiration_date = '${expirationDate}'`
   }
 }

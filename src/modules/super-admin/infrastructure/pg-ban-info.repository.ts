@@ -22,13 +22,13 @@ export class PgBanInfoRepository {
     await this.dataSource.query(`
         INSERT INTO public.user_ban_info
                (user_id, ban_status, ban_reason, ban_date, blog_id)
-        VALUES (${filter});
+        VALUES (${filter})
     `)
 
     return banInfo
   }
 
-  async saUpdateBanStatus(userId: string, banStatus: boolean, banReason: string | null, banDate: string | null): Promise<boolean> {
+  async saUpdateBanStatus(userId: string, banStatus: boolean, banReason: string | null, banDate: Date | null): Promise<boolean> {
     const filter = this.getUpdateFilter(banStatus, banReason, banDate)
     const result = await this.dataSource.query(`
        UPDATE public.user_ban_info
@@ -43,16 +43,18 @@ export class PgBanInfoRepository {
   }
 
   async deleteBanInfoById(userId: string): Promise<boolean> {
-    try {
-      await this.dataSource.query(`
-        DELETE 
-          FROM public.user_ban_info
-         WHERE user_id = '${userId}';
-      `)
-      return true
-    } catch (e) {
+    const query = `
+      DELETE 
+        FROM public.user_ban_info
+       WHERE user_id = $1;
+    `
+
+    const result = await this.dataSource.query(query, [userId])
+
+    if (result[1] !== 1) {
       return false
     }
+    return true
   }
 
   private getCreateFilter(banInfo: BanInfoModel): string {
@@ -63,7 +65,7 @@ export class PgBanInfoRepository {
     return filter
   }
 
-  private getUpdateFilter(banStatus: boolean, banReason: string | null, banDate: string | null): string {
+  private getUpdateFilter(banStatus: boolean, banReason: string | null, banDate: Date | null): string {
     let filter = `ban_status = '${banStatus}', ban_date = null, ban_reason = null`
     if (banReason !== null) {
       return filter = `ban_status = '${banStatus}', ban_date = '${banDate}', ban_reason = '${banReason}'`

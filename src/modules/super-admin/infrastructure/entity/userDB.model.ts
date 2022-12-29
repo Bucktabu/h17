@@ -5,7 +5,16 @@ export class UserDBModel {
     public email: string,
     public passwordSalt: string,
     public passwordHash: string,
-    public createdAt: string
+    public createdAt: Date
+  ) {}
+}
+
+export class CreatedUserModel {
+  constructor(
+      public id: string,
+      public login: string,
+      public email: string,
+      public createdAt: string
   ) {}
 }
 

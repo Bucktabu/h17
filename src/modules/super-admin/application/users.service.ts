@@ -26,7 +26,7 @@ export class UsersService {
       dto.email,
       hash.passwordSalt,
       hash.passwordHash,
-      new Date().toISOString(),
+      new Date(),
     );
 
     const banInfo = new BanInfoModel(
@@ -37,20 +37,20 @@ export class UsersService {
       null,
     );
 
-    await this.usersRepository.createUser(user);
-    await this.banInfoRepository.createBanInfo(banInfo);
+    const createdUser = await this.usersRepository.createUser(user);
+    const createdBanInfo = await this.banInfoRepository.createBanInfo(banInfo);
     await this.emailConfirmationRepository.createEmailConfirmation(
       emailConfirmation,
     )
 
-    return {user, banInfo}
+    return {createdUser, createdBanInfo}
   }
 
   async updateBanStatus(userId: string, dto: BanUserDTO): Promise<boolean> {
     let banDate = null;
     let banReason = null;
     if (dto.isBanned) {
-      banDate = String(new Date());
+      banDate = new Date();
       banReason = dto.banReason;
     }
     //await this.blogsRepository.updateBanStatus(userId, dto.isBanned);

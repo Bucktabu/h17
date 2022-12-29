@@ -15,7 +15,7 @@ import { AuthBasicGuard } from '../../../guards/auth.basic.guard';
 import { UsersService } from '../application/users.service';
 import { QueryParametersDto } from '../../../global-model/query-parameters.dto';
 import { UserDto } from './dto/userDto';
-import { UserViewModel } from './dto/userView.model';
+import { UserViewModelWithBanInfo} from './dto/userView.model';
 import { BanUserDTO } from './dto/ban-user.dto';
 import { CreateUserBySaUseCase } from '../use-cases/create-user-by-sa.use-case';
 import {PgQueryUsersRepository} from "../infrastructure/pg-query-users.repository";
@@ -38,7 +38,7 @@ export class UsersController {
   }
 
   @Post()
-  async createUser(@Body() dto: UserDto): Promise<UserViewModel> {
+  async createUser(@Body() dto: UserDto): Promise<UserViewModelWithBanInfo> {
     const user = await this.createUserUseCase.execute(dto)
 
     return user;

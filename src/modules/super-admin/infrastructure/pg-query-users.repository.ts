@@ -46,12 +46,12 @@ export class PgQueryUsersRepository {
           ON u.id = b.user_id
        WHERE ${filter}
        ORDER BY "${queryDto.sortBy}" ${queryDto.sortDirection}
-       LIMIT ${queryDto.pageSize} OFFSET ${giveSkipNumber(queryDto.pageNumber, queryDto.pageSize)};
+       LIMIT $1 OFFSET ${giveSkipNumber(queryDto.pageNumber, queryDto.pageSize)};
     `
 
-    const usersDB = await this.dataSource.query(query, /*[
-        queryDto.sortBy, queryDto.sortDirection, queryDto.pageSize
-    ]*/)
+    const usersDB = await this.dataSource.query(query, [
+        queryDto.pageSize
+    ])
 
     const users = usersDB.map(u => toUserViewModel(u))
 
