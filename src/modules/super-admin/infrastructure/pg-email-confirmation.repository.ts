@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectDataSource } from "@nestjs/typeorm";
 import { DataSource } from "typeorm";
 import { EmailConfirmationModel } from "./entity/emailConfirmation.model";
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class PgEmailConfirmationRepository {
@@ -25,9 +26,9 @@ export class PgEmailConfirmationRepository {
     const query = `
       SELECT is_confirmed
         FROM public.email_confirmation
-       WHERE user_id = '${userId}';
+       WHERE user_id = $1;
     `
-    const result = await this.dataSource.query(query) // TODO не получается передать параметром по аналогии с удалением юзера
+    const result = await this.dataSource.query(query, [ userId ])
 
     if (!result.length) {
       return null
@@ -72,8 +73,7 @@ export class PgEmailConfirmationRepository {
          SET ${filter}
        WHERE user_id = '${userId}';
     `
-
-    const result = await this.dataSource.query(query)
+    const result = await this.dataSource.query(query) //TODO here
 
     if (result[1] !== 1) {
       return false

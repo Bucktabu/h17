@@ -34,6 +34,7 @@ export class UsersController {
     @Query()
     query: QueryParametersDto,
   ) {
+
     return this.queryUsersRepository.getUsers(query);
   }
 

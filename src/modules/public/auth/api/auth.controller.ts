@@ -128,10 +128,11 @@ export class AuthController {
   async registrationEmailResending(
     @Body(EmailResendingValidationPipe) user: UserDBModel,
   ): Promise<void> {
+    console.log(user);
     const newConfirmationCode = await this.authService.updateConfirmationCode(
       user.id,
     );
-    console.log(newConfirmationCode);
+    console.log(newConfirmationCode, 'from auth controller');
     if (!newConfirmationCode) {
       throw new NotImplementedException();
     }

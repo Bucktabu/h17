@@ -27,7 +27,6 @@ export class EmailResendingValidationPipe implements PipeTransform {
     if (isConfirmed) {
       return false;
     }
-
     return user;
   }
 }

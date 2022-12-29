@@ -36,7 +36,6 @@ export class PgUsersRepository {
       DELETE FROM public.users
        WHERE id = $1;
     `
-
     const result = await this.dataSource.query(query, [userId])
 
     if (result[1] !== 1) {
