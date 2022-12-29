@@ -38,7 +38,7 @@ export class PgQueryUsersRepository {
   async getUsers(queryDto: QueryParametersDto): Promise<ContentPageModel> {
     const filter = this.getFilter(queryDto)
 
-    const query = `
+    const usersQuery = `
       SELECT u.id, u.login, u.email, u.created_at as "createdAt",
              b.ban_status as "isBanned", b.ban_date as "banDate", b.ban_reason as "banReason"
         FROM public.users u
@@ -49,17 +49,26 @@ export class PgQueryUsersRepository {
        LIMIT $1 OFFSET ${giveSkipNumber(queryDto.pageNumber, queryDto.pageSize)};
     `
 
-    const usersDB = await this.dataSource.query(query, [
+    const usersDB = await this.dataSource.query(usersQuery, [
         queryDto.pageSize
     ])
 
     const users = usersDB.map(u => toUserViewModel(u))
 
+    const totalCountQuery = `
+      SELECT COUNT(u.id)
+        FROM public.users u
+        LEFT JOIN public.user_ban_info b
+          ON u.id = b.user_id
+       WHERE ${filter}
+    `
+    const totalCount = await this.dataSource.query(totalCountQuery)
+
     return paginationContentPage(
         queryDto.pageNumber,
         queryDto.pageSize,
         users,
-        usersDB.length,
+        Number(totalCount[0].count),
     );
   }
 
