@@ -12,7 +12,7 @@ export class SecurityEntity {
 
   @Column() ipAddress: string;
 
-  @Column() iat: Date;
+  @Column() iat: string;
 
-  @Column() exp: Date;
+  @Column() exp: string;
 }

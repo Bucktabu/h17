@@ -5,7 +5,7 @@ export class UserDBModel {
     public email: string,
     public passwordSalt: string,
     public passwordHash: string,
-    public createdAt: Date
+    public createdAt: string
   ) {}
 }
 
@@ -25,7 +25,7 @@ export class UserWithCountAndBanInfo {
       public email: string,
       public createdAt: string,
       public isBanned: boolean,
-      public banDate: Date | null,
+      public banDate: string | null,
       public banReason: string | null,
       public count: number
   ) {}

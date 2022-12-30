@@ -6,13 +6,17 @@ export class PgJwtRepository {
     @InjectDataSource() private dataSource: DataSource,
   ) {}
 
-  async getToken(refreshToken: string): Promise<string> {
+  async getToken(refreshToken: string): Promise<string | null> {
     const query = `
       SELECT token
         FROM public.token_black_list
        WHERE token = $1;
     `
     const result = await this.dataSource.query(query, [refreshToken])
+
+    if (!result.length) {
+      return null
+    }
     return result[0].token;
   }
 

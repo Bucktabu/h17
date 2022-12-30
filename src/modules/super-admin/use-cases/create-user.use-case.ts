@@ -20,7 +20,7 @@ export class CreateUserUseCase {
     const emailConfirmation = new EmailConfirmationModel(
       userId,
       uuidv4(),
-      add(new Date(), { hours: Number(settings.timeLife.CONFIRMATION_CODE) }),
+      (add(new Date(), { hours: Number(settings.timeLife.CONFIRMATION_CODE) })).toISOString(),
       false,
     );
 

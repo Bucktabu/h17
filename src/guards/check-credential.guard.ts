@@ -12,6 +12,7 @@ import { PgUsersRepository } from "../modules/super-admin/infrastructure/pg-user
 import { BanInfoEntity } from "../modules/super-admin/infrastructure/entity/ban-info.entity";
 import { PgBanInfoRepository } from "../modules/super-admin/infrastructure/pg-ban-info.repository";
 import { PgQueryUsersRepository } from "../modules/super-admin/infrastructure/pg-query-users.repository";
+import {_generateHash} from "../helper.functions";
 
 @Injectable()
 export class CheckCredentialGuard implements CanActivate {

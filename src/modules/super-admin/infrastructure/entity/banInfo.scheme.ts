@@ -23,8 +23,8 @@ export class BanInfo {
   @Prop({ Boolean, default: false })
   isBanned: boolean;
 
-  @Prop({ Date })
-  banDate: Date;
+  @Prop({ String })
+  banDate: string;
 
   @Prop({ String })
   banReason: string;

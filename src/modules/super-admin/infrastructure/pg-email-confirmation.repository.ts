@@ -18,8 +18,8 @@ export class PgEmailConfirmationRepository {
        WHERE user_id = '${codeOrId}' OR confirmation_code = '${codeOrId}';
     `
     const result = await this.dataSource.query(query)
-    console.log(result, 'from email confirmation repo')
-    return result
+    //console.log(result, 'from email confirmation repo')
+    return result[0]
   }
 
   async checkConfirmation(userId: string): Promise<boolean | null> {

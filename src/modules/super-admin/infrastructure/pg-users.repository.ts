@@ -31,6 +31,24 @@ export class PgUsersRepository {
     return user
   }
 
+  async updateUserPassword(
+    userId: string,
+    passwordSalt: string,
+    passwordHash: string,
+  ): Promise<boolean> {
+    const query = `
+      UPDATE public.users
+         SET password_salt = '${passwordSalt}', password_hash = '${passwordHash}'
+       WHERE id = $1;
+    `
+    const result = await this.dataSource.query(query, [userId])
+
+    if (result[1] !== 1) {
+      return false
+    }
+    return true
+  }
+
   async deleteUserById(userId: string): Promise<boolean> {
     const query = `
       DELETE FROM public.users

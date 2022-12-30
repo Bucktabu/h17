@@ -3,7 +3,7 @@ import {
   Controller,
   Get,
   HttpCode,
-  Ip,
+  Ip, NotFoundException,
   NotImplementedException,
   Post,
   Req,
@@ -32,6 +32,7 @@ import { EmailResendingValidationPipe } from '../../../../pipe/email-resending.p
 import { RefreshTokenValidationGuard } from '../../../../guards/refresh-token-validation.guard';
 import {PgQueryUsersRepository} from "../../../super-admin/infrastructure/pg-query-users.repository";
 import {CreateUserUseCase} from "../../../super-admin/use-cases/create-user.use-case";
+import {NewPasswordDTO} from "./dto/newPasswordDTO";
 
 @Controller('auth')
 export class AuthController {
@@ -42,6 +43,7 @@ export class AuthController {
     protected emailManager: EmailManager,
     protected emailConfirmationService: EmailConfirmationService,
     protected securityService: SecurityService,
+    protected userService: UsersService,
     protected queryUsersRepository: PgQueryUsersRepository,
   ) {}
 
@@ -91,6 +93,31 @@ export class AuthController {
       if (!result) {
         throw new NotImplementedException();
       }
+    }
+
+    return;
+  }
+
+  @Post('new-password')
+  @HttpCode(204)
+  async createNewPassword(
+    @Body() dto: NewPasswordDTO,
+    @Req() req: Request
+  ) {
+    const userId = req.emailConfirmation.userId
+    const user = await this.queryUsersRepository.getUserById(userId);
+    console.log(userId)
+    if (!user) {
+      throw new NotFoundException();
+    }
+
+    const result = await this.userService.updateUserPassword(
+        userId,
+        dto.newPassword,
+    );
+
+    if (!result) {
+      throw new NotImplementedException();
     }
 
     return;

@@ -4,9 +4,8 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
-import { InjectRepository } from "@nestjs/typeorm";
-import { EmailConfirmationEntity } from "../modules/super-admin/infrastructure/entity/email-confirmation.entity";
 import { PgEmailConfirmationRepository } from "../modules/super-admin/infrastructure/pg-email-confirmation.repository";
+import {request} from "express";
 
 @ValidatorConstraint({ name: 'ConfirmationCodeValid', async: true })
 @Injectable()
@@ -29,10 +28,11 @@ export class ConfirmationCodeValidator implements ValidatorConstraintInterface {
       return false;
     }
 
-    if (emailConfirmation.expirationDate < new Date()) {
+    if (new Date(emailConfirmation.expirationDate) < new Date()) {
       return false;
     }
 
+    request.emailConfirmation = emailConfirmation
     return true;
   }
 

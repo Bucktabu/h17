@@ -6,7 +6,7 @@ export class EmailConfirmationEntity {
 
   @Column() confirmationCode: string;
 
-  @Column() expirationDate: Date;
+  @Column() expirationDate: string;
 
   @Column() isConfirmation: boolean;
 }

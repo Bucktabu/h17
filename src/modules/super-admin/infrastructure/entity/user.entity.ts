@@ -12,5 +12,5 @@ export class UserEntity {
 
   @Column() passwordHash: string;
 
-  @CreateDateColumn() createdAt: Date;
+  @CreateDateColumn() createdAt: string;
 }

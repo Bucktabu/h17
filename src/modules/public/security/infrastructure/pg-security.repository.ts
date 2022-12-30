@@ -12,10 +12,10 @@ export class PgSecurityRepository {
     createDevice: UserDeviceModel,
   ): Promise<boolean> {
     const query = `
-      INSERT INTO public.security_device
+      INSERT INTO public.device_security
              (user_id, device_id, device_title, browser, ip_address, iat, exp)
-      VALUES (${createDevice.userId}, ${createDevice.deviceId}, ${createDevice.deviceTitle}, ${createDevice.browser}, ${createDevice.ipAddress}, ${createDevice.iat}, ${createDevice.exp});
-      RETURNING (user_id)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      RETURNING (user_id);
     `
     const result = await this.dataSource.query(query, [
         createDevice.userId, createDevice.deviceId, createDevice.deviceTitle, createDevice.browser, createDevice.ipAddress, createDevice.iat, createDevice.exp
@@ -33,7 +33,7 @@ export class PgSecurityRepository {
     exp: string,
   ): Promise<boolean> {
     const query = `
-      UPDATE public.security_device
+      UPDATE public.device_security
          SET iat = $1, exp = $2
        WHERE device_id = $3;
     `
@@ -50,7 +50,7 @@ export class PgSecurityRepository {
     deviceId: string,
   ): Promise<boolean> {
     const query = `
-      DELETE FROM public.security_device
+      DELETE FROM public.device_security
        WHERE user_id = $1 AND device_id != $2
     `
     await this.dataSource.query(query, [userId, deviceId])
@@ -59,7 +59,7 @@ export class PgSecurityRepository {
 
   async deleteDeviceById(deviceId: string): Promise<boolean> {
     const query = `
-      DELETE FROM public.security_device
+      DELETE FROM public.device_security
        WHERE device_id = $1
     `
     const result = await this.dataSource.query(query, [deviceId])

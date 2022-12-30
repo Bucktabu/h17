@@ -30,6 +30,7 @@ export class PgQueryUsersRepository {
         FROM public.users
        WHERE id = $1;
     `
+
     const result = await this.dataSource.query(query, [userId])
 
     return result[0]

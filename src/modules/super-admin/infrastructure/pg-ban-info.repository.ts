@@ -9,11 +9,14 @@ export class PgBanInfoRepository {
   }
 
   async getBanInfo(userId: string): Promise<BanInfoModel | null> {
-    return await this.dataSource.query(`
+    const query = `
       SELECT user_id as "userId", ban_status as "isBanned", ban_date as "banDate", ban_reason as "banReason", blog_id as "blogId"
         FROM public.user_ban_info
-       WHERE user_id = '${userId}';
-    `)
+       WHERE user_id = $1;
+    `
+    const result = await this.dataSource.query(query, [userId])
+
+    return result[0]
   }
 
   async createBanInfo(banInfo: BanInfoModel): Promise<BanInfoModel> {

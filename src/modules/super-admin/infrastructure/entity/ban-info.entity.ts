@@ -6,7 +6,7 @@ export class BanInfoEntity {
 
   @Column() isBanned: boolean;
 
-  @UpdateDateColumn() banDate: Date | null;
+  @UpdateDateColumn() banDate: string | null;
 
   @Column() banReason: string | null;
 
