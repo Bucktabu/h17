@@ -41,17 +41,6 @@ export class PgQueryUsersRepository {
     const filter = this.getFilter(queryDto)
     const sortFilter = this.sortFilter(queryDto)
 
-    // const usersQuery = `
-    //   SELECT u.id, u.login, u.email, u.created_at as "createdAt",
-    //          b.ban_status as "isBanned", b.ban_date as "banDate", b.ban_reason as "banReason"
-    //     FROM public.users u
-    //     LEFT JOIN public.user_ban_info b
-    //       ON u.id = b.user_id
-    //    WHERE ${filter}
-    //    ORDER BY "${queryDto.sortBy}" ${queryDto.sortDirection}
-    //    LIMIT $1 OFFSET ${giveSkipNumber(queryDto.pageNumber, queryDto.pageSize)};
-    // `
-
     const usersQuery = `
       SELECT u.id, u.login, u.email, u.created_at as "createdAt",
              b.ban_status as "isBanned", b.ban_date as "banDate", b.ban_reason as "banReason"
@@ -59,9 +48,20 @@ export class PgQueryUsersRepository {
         LEFT JOIN public.user_ban_info b
           ON u.id = b.user_id
        WHERE ${filter}
-       ORDER BY ${sortFilter} ${queryDto.sortDirection}
+       ORDER BY "${queryDto.sortBy}" ${queryDto.sortDirection}
        LIMIT $1 OFFSET ${giveSkipNumber(queryDto.pageNumber, queryDto.pageSize)};
     `
+
+    // const usersQuery = `
+    //   SELECT u.id, u.login, u.email, u.created_at as "createdAt",
+    //          b.ban_status as "isBanned", b.ban_date as "banDate", b.ban_reason as "banReason"
+    //     FROM public.users u
+    //     LEFT JOIN public.user_ban_info b
+    //       ON u.id = b.user_id
+    //    WHERE ${filter}
+    //    ORDER BY ${sortFilter} ${queryDto.sortDirection}
+    //    LIMIT $1 OFFSET ${giveSkipNumber(queryDto.pageNumber, queryDto.pageSize)};
+    // `
 
     const usersDB = await this.dataSource.query(usersQuery, [
         queryDto.pageSize
