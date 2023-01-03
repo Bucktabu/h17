@@ -7,6 +7,7 @@ import { toActiveSessionsViewModel } from '../../../../data-mapper/to-active-ses
 import { TokenPayloadModel } from '../../../../global-model/token-payload.model';
 import { PgSecurityRepository } from "../infrastructure/pg-security.repository";
 import { PgQuerySecurityRepository } from "../infrastructure/pg-query-security.repository";
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class SecurityService {
@@ -41,30 +42,28 @@ export class SecurityService {
   }
 
   async createUserDevice(
-    tokenPayload: TokenPayloadModel,
+    userId: string,
+    title: string,
     ipAddress: string,
-  ): Promise<boolean> {
-    const userDeviceInfo: any = new UserAgent().data;
+  ): Promise<{refreshToken: string, accessToken: string}> {
+    const deviceId = uuidv4();
+    const token = await this.jwtService.createToken(userId, deviceId);
+    const tokenPayload = await this.jwtService.getTokenPayload(
+      token.refreshToken,
+    );
 
     const userDevice = new UserDeviceModel(
       tokenPayload.userId,
       tokenPayload.deviceId,
-      userDeviceInfo.deviceCategory,
-      userDeviceInfo.userAgent,
+      title,
       ipAddress,
       tokenPayload.iat,
       tokenPayload.exp,
     );
 
-    const createdDevice = await this.securityRepository.createUserDevice(
-      userDevice,
-    );
+    await this.securityRepository.createUserDevice(userDevice);
 
-    if (!createdDevice) {
-      return false;
-    }
-
-    return true;
+    return token;
   }
 
   async createNewRefreshToken(refreshToken: string, tokenPayload: any) {

@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Headers,
   HttpCode,
   Ip, NotFoundException,
   NotImplementedException,
@@ -12,13 +13,11 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { AuthService } from '../application/auth.service';
-import { JwtService } from '../application/jwt.service';
 import { SecurityService } from '../../security/application/security.service';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { AuthDTO } from './dto/authDTO';
 import { EmailDTO } from './dto/emailDTO';
 import { RegistrationConfirmationDTO } from './dto/registration-confirmation.dto';
-import { v4 as uuidv4 } from 'uuid';
 import { EmailManager } from '../email-transfer/email.manager';
 import { EmailConfirmationService } from '../../../super-admin/application/emailConfirmation.service';
 import { UsersService } from '../../../super-admin/application/users.service';
@@ -39,7 +38,6 @@ export class AuthController {
   constructor(
     protected authService: AuthService,
     protected createUserUseCase: CreateUserUseCase,
-    protected jwsService: JwtService,
     protected emailManager: EmailManager,
     protected emailConfirmationService: EmailConfirmationService,
     protected securityService: SecurityService,
@@ -60,21 +58,16 @@ export class AuthController {
     @Ip() ipAddress,
     @User() user: UserDBModel,
     @Res() res: Response,
+    @Headers('user-agent') title: string
   ) {
-    const deviceId = uuidv4();
-    const token = await this.jwsService.createToken(user.id, deviceId);
-    const tokenPayload = await this.jwsService.getTokenPayload(
-      token.refreshToken,
-    );
-
-    await this.securityService.createUserDevice(tokenPayload, ipAddress);
+    const token = await this.securityService.createUserDevice(user.id, title, ipAddress);
 
     return res
       .status(200)
       .cookie('refreshToken', token.refreshToken, {
         secure: true,
         httpOnly: true,
-        //maxAge: 24*60*60*1000
+        maxAge: 24*60*60*1000
       })
       .send({ accessToken: token.accessToken });
   }

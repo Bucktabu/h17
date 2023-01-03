@@ -13,12 +13,12 @@ export class PgSecurityRepository {
   ): Promise<boolean> {
     const query = `
       INSERT INTO public.device_security
-             (user_id, device_id, device_title, browser, ip_address, iat, exp)
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
+             (user_id, device_id, device_title, ip_address, iat, exp)
+      VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING (user_id);
     `
     const result = await this.dataSource.query(query, [
-        createDevice.userId, createDevice.deviceId, createDevice.deviceTitle, createDevice.browser, createDevice.ipAddress, createDevice.iat, createDevice.exp
+        createDevice.userId, createDevice.deviceId, createDevice.deviceTitle, createDevice.ipAddress, createDevice.iat, createDevice.exp
     ])
 
     if (!result.length) {
