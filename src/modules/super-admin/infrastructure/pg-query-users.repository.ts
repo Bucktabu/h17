@@ -7,6 +7,7 @@ import { UserDBModel } from "./entity/userDB.model";
 import {BanStatusModel} from "../../../global-model/ban-status.model";
 import {toUserViewModel} from "../../../data-mapper/to-create-user-view.model";
 import {ContentPageModel} from "../../../global-model/contentPage.model";
+import { SortParametersModel } from "../../../global-model/sort-parameters.model";
 
 @Injectable()
 export class PgQueryUsersRepository {
@@ -38,6 +39,18 @@ export class PgQueryUsersRepository {
 
   async getUsers(queryDto: QueryParametersDto): Promise<ContentPageModel> {
     const filter = this.getFilter(queryDto)
+    const sortFilter = this.sortFilter(queryDto)
+
+    // const usersQuery = `
+    //   SELECT u.id, u.login, u.email, u.created_at as "createdAt",
+    //          b.ban_status as "isBanned", b.ban_date as "banDate", b.ban_reason as "banReason"
+    //     FROM public.users u
+    //     LEFT JOIN public.user_ban_info b
+    //       ON u.id = b.user_id
+    //    WHERE ${filter}
+    //    ORDER BY "${queryDto.sortBy}" ${queryDto.sortDirection}
+    //    LIMIT $1 OFFSET ${giveSkipNumber(queryDto.pageNumber, queryDto.pageSize)};
+    // `
 
     const usersQuery = `
       SELECT u.id, u.login, u.email, u.created_at as "createdAt",
@@ -46,7 +59,7 @@ export class PgQueryUsersRepository {
         LEFT JOIN public.user_ban_info b
           ON u.id = b.user_id
        WHERE ${filter}
-       ORDER BY "${queryDto.sortBy}" ${queryDto.sortDirection}
+       ORDER BY ${sortFilter} ${queryDto.sortDirection}
        LIMIT $1 OFFSET ${giveSkipNumber(queryDto.pageNumber, queryDto.pageSize)};
     `
 
@@ -109,5 +122,15 @@ export class PgQueryUsersRepository {
     if (login) return login
     if (searchEmailTerm) return email
     return ''
+  }
+
+  private sortFilter(query: QueryParametersDto): string {
+    const {sortBy} = query
+
+    if (sortBy === SortParametersModel.Login) {
+      return `COLLATE "C" "${sortBy}"`
+    }
+
+    return `"${sortBy}"`
   }
 }
