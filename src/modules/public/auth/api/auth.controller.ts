@@ -60,7 +60,6 @@ export class AuthController {
     @Res() res: Response,
     @Headers('user-agent') title: string
   ) {
-    console.log(title);
     const token = await this.securityService.createUserDevice(user.id, title, ipAddress);
 
     return res

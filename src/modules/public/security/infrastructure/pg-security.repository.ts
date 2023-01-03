@@ -12,13 +12,16 @@ export class PgSecurityRepository {
     createDevice: UserDeviceModel,
   ): Promise<boolean> {
     console.log(createDevice);
-    console.log(typeof createDevice.deviceTitle);
+
     const query = `
       INSERT INTO public.device_security
              (user_id, device_id, device_title, ip_address, iat, exp)
       VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING (user_id);
     `
+
+    console.log('query =>', query);
+
     const result = await this.dataSource.query(query, [
         createDevice.userId, createDevice.deviceId, createDevice.deviceTitle, createDevice.ipAddress, createDevice.iat, createDevice.exp
     ])

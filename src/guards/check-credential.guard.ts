@@ -29,11 +29,16 @@ export class CheckCredentialGuard implements CanActivate {
         req.body.loginOrEmail,
       );
 
+    console.log('CheckCredentialGuard => user', user);
+
     if (!user) {
       throw new UnauthorizedException();
     }
 
     const banInfo = await this.banInfoRepository.getBanInfo(user.id);
+
+    console.log('CheckCredentialGuard => banInfo.isBanned', banInfo.isBanned);
+
 
     if (banInfo.isBanned) {
       throw new UnauthorizedException();
@@ -43,6 +48,9 @@ export class CheckCredentialGuard implements CanActivate {
       req.body.password,
       user.passwordHash,
     );
+
+    console.log('CheckCredentialGuard => passwordEqual', passwordEqual);
+
 
     if (!passwordEqual) {
       throw new UnauthorizedException();
