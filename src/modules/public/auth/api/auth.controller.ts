@@ -9,8 +9,8 @@ import {
   Post,
   Req,
   Res,
-  UseGuards,
-} from '@nestjs/common';
+  UseGuards, UsePipes
+} from "@nestjs/common";
 import { Request, Response } from 'express';
 import { AuthService } from '../application/auth.service';
 import { SecurityService } from '../../security/application/security.service';
@@ -55,11 +55,12 @@ export class AuthController {
   @Post('login')
   async createUser(
     @Body() dto: AuthDTO,
-    @Ip() ipAddress,
+    @Ip() ipAddress: string,
     @User() user: UserDBModel,
     @Res() res: Response,
     @Headers('user-agent') title: string
   ) {
+
     const token = await this.securityService.createUserDevice(user.id, title, ipAddress);
 
     return res
