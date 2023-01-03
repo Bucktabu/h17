@@ -25,7 +25,6 @@ import { BanInfoEntity } from "./modules/super-admin/infrastructure/entity/ban-i
 import { EmailConfirmationEntity } from "./modules/super-admin/infrastructure/entity/email-confirmation.entity";
 import { UserEntity } from "./modules/super-admin/infrastructure/entity/user.entity";
 import { PgSecurityRepository } from "./modules/public/security/infrastructure/pg-security.repository";
-import { settings } from "./settings";
 import { PgQuerySecurityRepository } from './modules/public/security/infrastructure/pg-query-security.repository';
 import { CreateUserUseCase } from './modules/super-admin/use-cases/create-user.use-case';
 import { PgQueryUsersRepository } from './modules/super-admin/infrastructure/pg-query-users.repository';
