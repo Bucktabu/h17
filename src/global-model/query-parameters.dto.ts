@@ -13,16 +13,24 @@ export class QueryParametersDto {
   @Transform(({ value }) => {
     if (!value) return
     switch (value) {
-      case 'youtubeUrl': return value = 'youtube_url';
-      case 'blogId': return value = 'blog_id'
-      case 'createdAt': return value = 'created_at'
+      case 'youtubeUrl': return value = SortParametersModel.YoutubeUrl;
+      case 'blogId': return value = SortParametersModel.BlogId;
+      case 'createdAt': return value = SortParametersModel.CreatedAt;
       default: return value;
     }
   })
-  sortBy: string = 'created_at';
+  sortBy: string = SortParametersModel.CreatedAt;
 
   @IsEnum(SortDirections)
   @IsOptional()
+  @Transform(({ value }) => {
+    if (!value) return
+    switch (value) {
+      case 'asc': return value = SortDirections.Ascending;
+      case 'desc': return value = SortDirections.Distending
+      default: return value;
+    }
+  })
   sortDirection: string = SortDirections.Distending;
 
   @Transform(({ value }) => Number(value))

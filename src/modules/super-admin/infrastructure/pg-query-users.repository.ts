@@ -38,7 +38,7 @@ export class PgQueryUsersRepository {
 
   async getUsers(queryDto: QueryParametersDto): Promise<ContentPageModel> {
     const filter = this.getFilter(queryDto)
-    console.log(queryDto.sortBy);
+
     const usersQuery = `
       SELECT u.id, u.login, u.email, u.created_at as "createdAt",
              b.ban_status as "isBanned", b.ban_date as "banDate", b.ban_reason as "banReason"
