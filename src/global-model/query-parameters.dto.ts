@@ -15,8 +15,7 @@ export class QueryParametersDto {
     switch (value) {
       case 'youtubeUrl': return value = SortParametersModel.YoutubeUrl;
       case 'blogId': return value = SortParametersModel.BlogId;
-      case 'createdAt': return value = SortParametersModel.CreatedAt;
-      default: return value;
+      default: return SortParametersModel.CreatedAt;
     }
   })
   sortBy: string = SortParametersModel.CreatedAt;
@@ -27,8 +26,7 @@ export class QueryParametersDto {
     if (!value) return
     switch (value) {
       case 'asc': return value = SortDirections.Ascending;
-      case 'desc': return value = SortDirections.Distending
-      default: return value;
+      default: return SortDirections.Distending;
     }
   })
   sortDirection: string = SortDirections.Distending;

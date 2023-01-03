@@ -130,6 +130,9 @@ export class PgQueryUsersRepository {
     if (sortBy === SortParametersModel.Login) {
       return `"${sortBy}" COLLATE "C"`
     }
+    if (sortBy === SortParametersModel.CreatedAt) {
+      return `"${sortBy}" COLLATE "C"`
+    }
 
     return `"${sortBy}"`
   }
