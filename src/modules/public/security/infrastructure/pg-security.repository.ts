@@ -11,6 +11,8 @@ export class PgSecurityRepository {
   async createUserDevice(
     createDevice: UserDeviceModel,
   ): Promise<boolean> {
+    console.log(createDevice);
+    console.log(typeof createDevice.deviceTitle);
     const query = `
       INSERT INTO public.device_security
              (user_id, device_id, device_title, ip_address, iat, exp)
