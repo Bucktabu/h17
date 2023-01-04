@@ -3,7 +3,6 @@ import { EmailConfirmationModel } from '../infrastructure/entity/emailConfirmati
 import add from 'date-fns/add';
 import { v4 as uuidv4 } from 'uuid';
 import { settings } from '../../../settings';
-import { PgEmailConfirmationRepository } from "../infrastructure/pg-email-confirmation.repository";
 import { EmailManager } from "../../public/auth/email-transfer/email.manager";
 import {UserDto} from "../api/dto/userDto";
 import {UsersService} from "../application/users.service";
@@ -24,7 +23,7 @@ export class CreateUserUseCase {
       false,
     );
 
-    this.emailManager.sendConfirmationEmail(
+    await this.emailManager.sendConfirmationEmail(
       dto.email,
       emailConfirmation.confirmationCode,
     );
