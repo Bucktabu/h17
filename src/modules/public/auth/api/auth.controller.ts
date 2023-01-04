@@ -19,7 +19,6 @@ import { AuthDTO } from './dto/authDTO';
 import { EmailDTO } from './dto/emailDTO';
 import { RegistrationConfirmationDTO } from './dto/registration-confirmation.dto';
 import { EmailManager } from '../email-transfer/email.manager';
-import { EmailConfirmationService } from '../../../super-admin/application/emailConfirmation.service';
 import { UsersService } from '../../../super-admin/application/users.service';
 import { AuthBearerGuard } from '../../../../guards/auth.bearer.guard';
 import { UserDBModel } from '../../../super-admin/infrastructure/entity/userDB.model';
@@ -27,12 +26,12 @@ import { User } from '../../../../decorator/user.decorator';
 import { toAboutMeViewModel } from '../../../../data-mapper/to-about-me-view.model';
 import { CheckCredentialGuard } from '../../../../guards/check-credential.guard';
 import { UserDto } from '../../../super-admin/api/dto/userDto';
-import { EmailResendingValidationPipe } from '../../../../pipe/email-resending.pipe';
 import { RefreshTokenValidationGuard } from '../../../../guards/refresh-token-validation.guard';
 import {PgQueryUsersRepository} from "../../../super-admin/infrastructure/pg-query-users.repository";
 import {CreateUserUseCase} from "../../../super-admin/use-cases/create-user.use-case";
 import {NewPasswordDTO} from "./dto/newPasswordDTO";
 import { PgEmailConfirmationRepository } from "../../../super-admin/infrastructure/pg-email-confirmation.repository";
+import { ResendingDto } from "./dto/resending.dto";
 
 @Controller('auth')
 export class AuthController {
@@ -147,19 +146,20 @@ export class AuthController {
   @Post('registration-email-resending')
   @HttpCode(204)
   async registrationEmailResending(
-    @Body(EmailResendingValidationPipe) user: UserDBModel,
+    @Body() email: ResendingDto,
+    @Req() req: Request
   ): Promise<void> {
-    console.log(user);
+
     const newConfirmationCode = await this.authService.updateConfirmationCode(
-      user.id,
+      req.user.id,
     );
-    console.log(newConfirmationCode, 'from auth controller');
+    //console.log(newConfirmationCode, 'from auth controller');
     if (!newConfirmationCode) {
       throw new NotImplementedException();
     }
 
     return await this.emailManager.sendConfirmationEmail(
-      user.email,
+      req.user.email,
       newConfirmationCode,
     );
   }

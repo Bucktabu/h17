@@ -11,7 +11,6 @@ import { EmailAdapters } from './modules/public/auth/email-transfer/email.adapte
 import { EmailManager } from './modules/public/auth/email-transfer/email.manager';
 import { SecurityService } from './modules/public/security/application/security.service';
 import { EmailExistValidator } from './validation/email-exist-validator.service';
-import { EmailResendingValidationPipe } from './pipe/email-resending.pipe';
 import { LoginExistValidator } from './validation/login-exist-validator.service';
 import { ConfirmationCodeValidator } from './validation/confirmation-code.validator';
 import { CreateUserBySaUseCase } from './modules/super-admin/use-cases/create-user-by-sa.use-case';
@@ -28,6 +27,7 @@ import { PgSecurityRepository } from "./modules/public/security/infrastructure/p
 import { PgQuerySecurityRepository } from './modules/public/security/infrastructure/pg-query-security.repository';
 import { CreateUserUseCase } from './modules/super-admin/use-cases/create-user.use-case';
 import { PgQueryUsersRepository } from './modules/super-admin/infrastructure/pg-query-users.repository';
+import { EmailResendingValidator } from "./validation/email-resending.validator";
 
 const controllers = [
   AuthController,
@@ -40,12 +40,6 @@ const entity = [
   BanInfoEntity,
   EmailConfirmationEntity,
   UserEntity
-];
-
-const pipes = [
-  EmailExistValidator,
-  EmailResendingValidationPipe,
-  LoginExistValidator,
 ];
 
 const repositories = [
@@ -68,7 +62,13 @@ const services = [
   UsersService,
 ];
 
-const validators = [/*BlogExistValidator,*/ ConfirmationCodeValidator];
+const validators = [
+  /*BlogExistValidator,*/
+  ConfirmationCodeValidator,
+  EmailResendingValidator,
+  EmailExistValidator,
+  LoginExistValidator
+];
 
 const useCases = [CreateUserUseCase, CreateUserBySaUseCase];
 
@@ -91,7 +91,6 @@ const useCases = [CreateUserUseCase, CreateUserBySaUseCase];
   ],
   controllers: [...controllers],
   providers: [
-    ...pipes,
     ...repositories,
     ...services,
     ...validators,

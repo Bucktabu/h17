@@ -1,16 +1,18 @@
-import { Injectable, PipeTransform } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PgQueryUsersRepository } from "../modules/super-admin/infrastructure/pg-query-users.repository";
 import { PgEmailConfirmationRepository } from "../modules/super-admin/infrastructure/pg-email-confirmation.repository";
+import { ValidationArguments, ValidatorConstraint, ValidatorConstraintInterface } from "class-validator";
+import { request } from "express";
 
+@ValidatorConstraint({ name: 'EmailResendingValidator', async: true })
 @Injectable()
-export class EmailResendingValidationPipe implements PipeTransform {
+export class EmailResendingValidator implements ValidatorConstraintInterface {
   constructor(
     protected emailConfirmationService: PgEmailConfirmationRepository,
     protected queryUsersRepository: PgQueryUsersRepository,
   ) {}
 
-  async transform(dto, metadata) {
-    const email = dto.email;
+  async validate(email) {
     const user = await this.queryUsersRepository.getUserByLoginOrEmail(email);
 
     if (!user) {
@@ -24,6 +26,12 @@ export class EmailResendingValidationPipe implements PipeTransform {
     if (isConfirmed) {
       return false;
     }
-    return user;
+
+    request.user = user
+    return true;
+  }
+
+  defaultMessage(args: ValidationArguments) {
+    return 'Email is already confirm';
   }
 }

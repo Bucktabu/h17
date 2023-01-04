@@ -7,7 +7,7 @@ import {
 import { PgEmailConfirmationRepository } from "../modules/super-admin/infrastructure/pg-email-confirmation.repository";
 import {request} from "express";
 
-@ValidatorConstraint({ name: 'ConfirmationCodeValid', async: true })
+@ValidatorConstraint({ name: 'ConfirmationCodeValidator', async: true })
 @Injectable()
 export class ConfirmationCodeValidator implements ValidatorConstraintInterface {
   constructor(
