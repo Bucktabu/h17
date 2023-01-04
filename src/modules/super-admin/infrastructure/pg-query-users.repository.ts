@@ -39,8 +39,8 @@ export class PgQueryUsersRepository {
 
   async getUsers(queryDto: QueryParametersDto): Promise<ContentPageModel> {
     const filter = this.getFilter(queryDto)
-    const sortFilter = this.sortFilter(queryDto)
-
+    //const sortFilter = this.sortFilter(queryDto)
+    console.log(queryDto.sortBy);
     const usersQuery = `
       SELECT u.id, u.login, u.email, u.created_at as "createdAt",
              b.ban_status as "isBanned", b.ban_date as "banDate", b.ban_reason as "banReason"
@@ -51,7 +51,7 @@ export class PgQueryUsersRepository {
        ORDER BY "${queryDto.sortBy}" ${queryDto.sortDirection}
        LIMIT $1 OFFSET ${giveSkipNumber(queryDto.pageNumber, queryDto.pageSize)};
     `
-
+    console.log(usersQuery);
     // const usersQuery = `
     //   SELECT u.id, u.login, u.email, u.created_at as "createdAt",
     //          b.ban_status as "isBanned", b.ban_date as "banDate", b.ban_reason as "banReason"
@@ -124,16 +124,16 @@ export class PgQueryUsersRepository {
     return ''
   }
 
-  private sortFilter(query: QueryParametersDto): string {
-    const {sortBy} = query
-
-    if (sortBy === SortParametersModel.Login) {
-      return `"${sortBy}" COLLATE "C"`
-    }
-    // if (sortBy === SortParametersModel.CreatedAt) {
-    //   return `"${sortBy}" COLLATE "C"`
-    // }
-
-    return `"${sortBy}"`
-  }
+  // private sortFilter(query: QueryParametersDto): string {
+  //   const {sortBy} = query
+  //
+  //   if (sortBy === SortParametersModel.Login) {
+  //     return `"${sortBy}" COLLATE "C"`
+  //   }
+  //   // if (sortBy === SortParametersModel.CreatedAt) {
+  //   //   return `"${sortBy}" COLLATE "C"`
+  //   // }
+  //
+  //   return `"${sortBy}"`
+  // }
 }
