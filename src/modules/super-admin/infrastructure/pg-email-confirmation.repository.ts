@@ -9,16 +9,28 @@ export class PgEmailConfirmationRepository {
   constructor(@InjectDataSource() private dataSource: DataSource) {
   }
 
-  async getEmailConfirmationByCodeOrId(
-    codeOrId: string,
+  // async getEmailConfirmationByCodeOrId(
+  //   userId: string,
+  // ): Promise<EmailConfirmationModel | null> {
+  //   const query = `
+  //     SELECT user_id as "userId", confirmation_code as "confirmationCode", expiration_date as "expirationDate", is_confirmed as "isConfirmed"
+  //       FROM public.email_confirmation
+  //      WHERE user_id = '${userId}';
+  //   `
+  //   const result = await this.dataSource.query(query)
+  //   //console.log(result, 'from email confirmation repo')
+  //   return result[0]
+  // }
+
+  async getEmailConfirmationByCode(
+    code: string,
   ): Promise<EmailConfirmationModel | null> {
     const query = `
       SELECT user_id as "userId", confirmation_code as "confirmationCode", expiration_date as "expirationDate", is_confirmed as "isConfirmed"
         FROM public.email_confirmation
-       WHERE user_id = '${codeOrId}' OR confirmation_code = '${codeOrId}';
+       WHERE confirmation_code = '${code}';
     `
     const result = await this.dataSource.query(query)
-    //console.log(result, 'from email confirmation repo')
     return result[0]
   }
 

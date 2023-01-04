@@ -10,17 +10,5 @@ export class EmailConfirmationService {
     protected emailConfirmationRepository: PgEmailConfirmationRepository,
   ) {}
 
-  async getConfirmationByCode(code: string): Promise<EmailConfirmationModel> {
-    return this.emailConfirmationRepository.getEmailConfirmationByCodeOrId(
-      code,
-    );
-  }
 
-  async checkConfirmation(id: string): Promise<boolean | null> {
-    return this.emailConfirmationRepository.checkConfirmation(id);
-  }
-
-  async updateConfirmationInfo(idOrCode: string) {
-    return this.emailConfirmationRepository.updateConfirmationInfo(idOrCode);
-  }
 }

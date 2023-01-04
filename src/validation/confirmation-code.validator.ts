@@ -16,7 +16,7 @@ export class ConfirmationCodeValidator implements ValidatorConstraintInterface {
 
   async validate(code: string) {
     const emailConfirmation =
-      await this.emailConfirmationRepository.getEmailConfirmationByCodeOrId(
+      await this.emailConfirmationRepository.getEmailConfirmationByCode(
         code,
       );
 

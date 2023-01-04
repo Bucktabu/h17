@@ -32,6 +32,7 @@ import { RefreshTokenValidationGuard } from '../../../../guards/refresh-token-va
 import {PgQueryUsersRepository} from "../../../super-admin/infrastructure/pg-query-users.repository";
 import {CreateUserUseCase} from "../../../super-admin/use-cases/create-user.use-case";
 import {NewPasswordDTO} from "./dto/newPasswordDTO";
+import { PgEmailConfirmationRepository } from "../../../super-admin/infrastructure/pg-email-confirmation.repository";
 
 @Controller('auth')
 export class AuthController {
@@ -39,7 +40,7 @@ export class AuthController {
     protected authService: AuthService,
     protected createUserUseCase: CreateUserUseCase,
     protected emailManager: EmailManager,
-    protected emailConfirmationService: EmailConfirmationService,
+    protected emailConfirmationRepository: PgEmailConfirmationRepository,
     protected securityService: SecurityService,
     protected userService: UsersService,
     protected queryUsersRepository: PgQueryUsersRepository,
@@ -129,9 +130,9 @@ export class AuthController {
   @Post('registration-confirmation')
   @HttpCode(204)
   async registrationConfirmation(
-    @Body('code') dto: RegistrationConfirmationDTO,
+    @Body() dto: RegistrationConfirmationDTO,
   ) {
-    const result = await this.emailConfirmationService.updateConfirmationInfo(
+    const result = await this.emailConfirmationRepository.updateConfirmationInfo(
       dto.code,
     );
 
