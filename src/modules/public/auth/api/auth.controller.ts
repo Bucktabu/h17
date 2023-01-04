@@ -51,7 +51,7 @@ export class AuthController {
     return toAboutMeViewModel(user);
   }
 
-  @UseGuards(/*ThrottlerGuard,*/ CheckCredentialGuard)
+  @UseGuards(ThrottlerGuard, CheckCredentialGuard)
   @Post('login')
   async createUser(
     @Body() dto: AuthDTO,
@@ -116,7 +116,7 @@ export class AuthController {
     return;
   }
 
-  //@UseGuards(ThrottlerGuard)
+  @UseGuards(ThrottlerGuard)
   @Post('registration')
   @HttpCode(204)
   async registration(@Body() dto: UserDto) {
@@ -125,7 +125,7 @@ export class AuthController {
     return;
   }
 
-  //@UseGuards(ThrottlerGuard)
+  @UseGuards(ThrottlerGuard)
   @Post('registration-confirmation')
   @HttpCode(204)
   async registrationConfirmation(
@@ -142,7 +142,7 @@ export class AuthController {
     return;
   }
 
-  //@UseGuards(ThrottlerGuard)
+  @UseGuards(ThrottlerGuard)
   @Post('registration-email-resending')
   @HttpCode(204)
   async registrationEmailResending(

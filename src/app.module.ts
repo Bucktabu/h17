@@ -28,6 +28,8 @@ import { PgQuerySecurityRepository } from './modules/public/security/infrastruct
 import { CreateUserUseCase } from './modules/super-admin/use-cases/create-user.use-case';
 import { PgQueryUsersRepository } from './modules/super-admin/infrastructure/pg-query-users.repository';
 import { EmailResendingValidator } from "./validation/email-resending.validator";
+import { ThrottlerModule } from "@nestjs/throttler";
+import { settings } from "./settings";
 
 const controllers = [
   AuthController,
@@ -87,7 +89,7 @@ const useCases = [CreateUserUseCase, CreateUserBySaUseCase];
       // entities: [...entity],
       // synchronize: true,
     }),
-    //ThrottlerModule.forRoot({ ttl: Number(settings.throttler.CONNECTION_TIME_LIMIT), limit: Number(settings.throttler.CONNECTION_COUNT_LIMIT) }),
+    ThrottlerModule.forRoot({ ttl: Number(settings.throttler.CONNECTION_TIME_LIMIT), limit: Number(settings.throttler.CONNECTION_COUNT_LIMIT) }),
   ],
   controllers: [...controllers],
   providers: [
