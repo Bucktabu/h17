@@ -4,9 +4,10 @@ import { ErrorExceptionFilter } from "../exception-filters/error-exception.filte
 import { HttpExceptionFilter } from "../exception-filters/exception.filter";
 import { useContainer } from "class-validator";
 import { AppModule } from "../app.module";
+import { NestExpressApplication } from "@nestjs/platform-express";
 
 
-export const createApp = (app: INestApplication) => {
+export const createApp = (app: INestApplication): INestApplication => {
   app.enableCors();
   app.use(cookieParser());
   app.useGlobalFilters(new ErrorExceptionFilter(), new HttpExceptionFilter());

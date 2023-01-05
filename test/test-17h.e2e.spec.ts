@@ -23,6 +23,7 @@ describe('e2e tests', () => {
 
     const rawApp = await moduleFixture.createNestApplication();
     app = createApp(rawApp)
+    //app.use({ "trust proxy": true})
     await app.init();
     server = await app.getHttpServer()
   });
@@ -152,7 +153,7 @@ describe('e2e tests', () => {
     'return error if :id from uri param not found; status 404;', () => {
 
     it('Drop all data.', async () => {
-     await request(server)
+      await request(server)
         .delete('/testing/all-data')
         .expect(204)
     })
@@ -264,8 +265,61 @@ describe('e2e tests', () => {
         .expect(204)
     })
 
-    it('Registration 2 users', () => {
+    it('Registration 2 users', async () => {
+      await request(server)
+        .post(`/sa/users`)
+        .send({
+          login: "user1",
+          password: "qwerty1",
+          email: "email1p@gg.om"
+        })
+        .auth(superUser.valid.login, superUser.valid.password, { type: 'basic' })
+        .expect(201)
 
+      await request(server)
+        .post(`/sa/users`)
+        .send({
+          login: "user2",
+          password: "qwerty2",
+          email: "email2p@gg.om"
+        })
+        .auth(superUser.valid.login, superUser.valid.password, { type: 'basic' })
+        .expect(201)
     })
+
+    it('Login users and get devise id', async () => {
+      const token1 = await request(server)
+        .post(`/auth/login`)
+        .send({
+          loginOrEmail: "user1",
+          password: "qwerty1"
+        })
+        .set({ 'user-agent': 'Firefox/0.1'})
+        .set('X-Forwarded-For', '192.168.2.1')
+        .expect(200)
+
+      const device = await request(server)
+        .get('/security/devices')
+        .set('Cookie', [token1.headers['set-cookie'][0]])
+        .expect(200)
+
+      const deviceId = device.body[0].deviceId
+
+      const token2 = await request(server)
+        .post(`/auth/login`)
+        .send({
+          loginOrEmail: "user1",
+          password: "qwerty1"
+        })
+        .set({ 'user-agent': 'Opera/0.1'})
+        .set('X-Forwarded-For', '192.168.2.2')
+        .expect(200)
+
+      await request(server)
+        .delete(`/security/devices/${deviceId}`)
+        .set('Cookie', [token2.headers['set-cookie'][0]])
+        .expect(403)
+    })
+
   })
 });

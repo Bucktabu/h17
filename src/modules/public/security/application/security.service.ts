@@ -20,7 +20,7 @@ export class SecurityService {
     const activeSessions = await this.querySecurityRepository.getAllActiveSessions(
       userId,
     );
-    console.log(activeSessions);
+
     if (!activeSessions) {
       return null;
     }
