@@ -1,4 +1,4 @@
-import { DeviceSecurityModel } from './entity/deviceSecurity.model';
+import { ViewSecurityDeviseModel } from './entity/viewSecurityDeviseModel';
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from "@nestjs/typeorm";
 import { DataSource } from "typeorm";

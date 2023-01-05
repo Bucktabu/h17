@@ -1,5 +1,5 @@
 import mongoose, { HydratedDocument } from 'mongoose';
-import { DeviceSecurityModel } from './deviceSecurity.model';
+import { ViewSecurityDeviseModel } from './viewSecurityDeviseModel';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { UserDevice } from './user-device.scheme';
 

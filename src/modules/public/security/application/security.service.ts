@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '../../auth/application/jwt.service';
-import { DeviceSecurityModel } from '../infrastructure/entity/deviceSecurity.model';
+import { ViewSecurityDeviseModel } from '../infrastructure/entity/viewSecurityDeviseModel';
 import { UserDeviceModel } from '../infrastructure/entity/userDevice.model';
 import { toActiveSessionsViewModel } from '../../../../data-mapper/to-active-session-view.model';
 import { PgSecurityRepository } from "../infrastructure/pg-security.repository";
@@ -15,21 +15,22 @@ export class SecurityService {
     protected querySecurityRepository: PgQuerySecurityRepository
   ) {}
 
-  async getAllActiveSessions(userId: string) {
+  async getAllActiveSessions(userId: string): Promise<ViewSecurityDeviseModel[] | null> {
+
     const activeSessions = await this.querySecurityRepository.getAllActiveSessions(
       userId,
     );
-
-    if (!activeSessions.length) {
+    console.log(activeSessions);
+    if (!activeSessions) {
       return null;
     }
 
-    return activeSessions.map((activeSession) =>
-      toActiveSessionsViewModel(activeSession),
+    return activeSessions.map((a) =>
+      toActiveSessionsViewModel(a)
     );
   }
 
-  async getDeviceById(deviceId: string): Promise<DeviceSecurityModel | null> {
+  async getDeviceById(deviceId: string): Promise<UserDeviceModel | null> {
     const device = await this.querySecurityRepository.getDeviseById(deviceId);
 
     if (!device) {
