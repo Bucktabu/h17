@@ -53,14 +53,13 @@ export class SecurityService {
     const userDevice = new UserDeviceModel(
       tokenPayload.userId,
       tokenPayload.deviceId,
-      title,
+      title ,
       ipAddress,
       tokenPayload.iat,
       tokenPayload.exp,
     );
 
     await this.securityRepository.createUserDevice(userDevice);
-
     return token;
   }
 

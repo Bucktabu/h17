@@ -60,6 +60,7 @@ export class AuthController {
     @Res() res: Response,
     @Headers('user-agent') title: string
   ) {
+
     const token = await this.securityService.createUserDevice(user.id, title, ipAddress);
 
     return res
@@ -99,7 +100,7 @@ export class AuthController {
   ) {
     const userId = req.emailConfirmation.userId
     const user = await this.queryUsersRepository.getUserById(userId);
-    console.log(userId)
+
     if (!user) {
       throw new NotFoundException();
     }

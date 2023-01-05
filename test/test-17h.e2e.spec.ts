@@ -150,8 +150,15 @@ describe('e2e tests', () => {
 
   describe('DELETE -> /security/devices/:deviceId: should' +
     'return error if :id from uri param not found; status 404;', () => {
+
+    it('Drop all data.', async () => {
+     await request(server)
+        .delete('/testing/all-data')
+        .expect(204)
+    })
+
     it('Create user', async () => {
-      const res = await request(server)
+      await request(server)
         .post(`/sa/users`)
         .send({
           login: "loSer",
@@ -169,14 +176,81 @@ describe('e2e tests', () => {
           loginOrEmail: "loSer",
           password: "qwerty1"
         })
+        .set({ 'user-agent': 'chrome/0.1'})
         .expect(200)
 
-      const response = await request(server)
+      await request(server)
         .delete('/security/devices/1')
-        .set({ Authorization: `Bearer ${token.body.accessToken}` })
+        .set('Cookie', [token.headers['set-cookie'][0]])
         .expect(404)
+    })
+  })
 
-      console.log(response.body)
+  describe('GET -> "/security/devices": login user 4 times from different'+
+    'browsers, then get device list; status 200; content: device list; used' +
+    'additional methods: POST => /auth/login;GET -> "/security/devices": login' +
+    'user 4 times from different browsers, then get device list; status 200;' +
+    'content: device list; used additional methods: POST => /auth/login;', () => {
+
+    it('Drop all data.', async () => {
+      await request(server)
+        .delete('/testing/all-data')
+        .expect(204)
+    })
+
+    it('Registration user', async () => {
+      await request(server)
+        .post(`/sa/users`)
+        .send({
+          login: "loSer",
+          password: "qwerty1",
+          email: "email2p@gg.om"
+        })
+        .auth(superUser.valid.login, superUser.valid.password, { type: 'basic' })
+        .expect(201)
+    })
+
+    it('login user 4 times from different browsers', async () => {
+      await request(server)
+        .post(`/auth/login`)
+        .send({
+          loginOrEmail: "loSer",
+          password: "qwerty1"
+        })
+        .set({ 'user-agent': 'chrome/0.1'})
+        .expect(200)
+
+      await request(server)
+        .post(`/auth/login`)
+        .send({
+          loginOrEmail: "loSer",
+          password: "qwerty1"
+        })
+        .set({ 'user-agent': 'Firefox/0.1'})
+        .expect(200)
+
+      await request(server)
+        .post(`/auth/login`)
+        .send({
+          loginOrEmail: "loSer",
+          password: "qwerty1"
+        })
+        .set({ 'user-agent': 'Safari/0.1'})
+        .expect(200)
+
+      const token = await request(server)
+        .post(`/auth/login`)
+        .send({
+          loginOrEmail: "loSer",
+          password: "qwerty1"
+        })
+        .set({ 'user-agent': 'Opera/0.1'})
+        .expect(200)
+
+      await request(server)
+        .get('/security/devices')
+        .set('Cookie', [token.headers['set-cookie'][0]])
+        .expect(200)
     })
   })
 });

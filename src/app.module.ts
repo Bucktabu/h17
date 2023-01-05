@@ -89,7 +89,10 @@ const useCases = [CreateUserUseCase, CreateUserBySaUseCase];
       // entities: [...entity],
       // synchronize: true,
     }),
-    ThrottlerModule.forRoot({ ttl: Number(settings.throttler.CONNECTION_TIME_LIMIT), limit: Number(settings.throttler.CONNECTION_COUNT_LIMIT) }),
+    ThrottlerModule.forRoot({
+      ttl: Number(settings.throttler.CONNECTION_TIME_LIMIT),
+      limit: Number(settings.throttler.CONNECTION_COUNT_LIMIT)
+    }),
   ],
   controllers: [...controllers],
   providers: [
