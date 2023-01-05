@@ -147,4 +147,36 @@ describe('e2e tests', () => {
     })
 
   })
+
+  describe('DELETE -> /security/devices/:deviceId: should' +
+    'return error if :id from uri param not found; status 404;', () => {
+    it('Create user', async () => {
+      const res = await request(server)
+        .post(`/sa/users`)
+        .send({
+          login: "loSer",
+          password: "qwerty1",
+          email: "email2p@gg.om"
+        })
+        .auth(superUser.valid.login, superUser.valid.password, { type: 'basic' })
+        .expect(201)
+    })
+
+    it('Login, get token and try delete', async () => {
+      const token = await request(server)
+        .post(`/auth/login`)
+        .send({
+          loginOrEmail: "loSer",
+          password: "qwerty1"
+        })
+        .expect(200)
+
+      const response = await request(server)
+        .delete('/security/devices/1')
+        .set({ Authorization: `Bearer ${token.body.accessToken}` })
+        .expect(404)
+
+      console.log(response.body)
+    })
+  })
 });

@@ -9,18 +9,30 @@ export class PgQuerySecurityRepository {
 	constructor(@InjectDataSource() private dataSource: DataSource) {}
 
 	async getAllActiveSessions(userId: string): Promise<DeviceSecurityModel[]> {
-    return await this.dataSource.query(`
-      SELECT user_id as "userId", device_id as "deviceId", device_title as "deviceTitle", browser as "browser", ip_address as "ipAddress", iat, exp
-        FROM public.security_device
-       WHERE user_id = ${userId};
-    `)
+    const query = `
+      SELECT user_id as "userId", device_id as "deviceId", device_title as "deviceTitle", ip_address as "ipAddress", iat, exp
+        FROM public.device_security
+       WHERE user_id = $1;
+    `
+    try {
+      const result = await this.dataSource.query(query, [userId])
+      return result[0]
+    } catch (e) {
+      return null
+    }
   }
 
   async getDeviseById(deviceId: string): Promise<DeviceSecurityModel | null> {
-    return await this.dataSource.query(`
-      SELECT user_id as "userId", device_id as "deviceId", device_title as "deviceTitle", browser as "browser", ip_address as "ipAddress", iat, exp
-        FROM public.security_device
-       WHERE device_id = ${deviceId};
-    `)
+    const query = `
+      SELECT user_id as "userId", device_id as "deviceId", device_title as "deviceTitle", ip_address as "ipAddress", iat, exp
+        FROM public.device_security
+       WHERE device_id = $1;
+    `
+    try {
+      const result = await this.dataSource.query(query, [deviceId])
+      return result[0]
+    } catch (e) {
+      return null
+    }
   }
 }

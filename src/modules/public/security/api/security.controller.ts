@@ -15,18 +15,18 @@ import { RefreshTokenValidationGuard } from '../../../../guards/refresh-token-va
 import { UserDBModel } from '../../../super-admin/infrastructure/entity/userDB.model';
 import { User } from '../../../../decorator/user.decorator';
 
-@Controller('security')
+@Controller('security/devices')
 export class SecurityController {
   constructor(protected securityService: SecurityService) {}
 
   @UseGuards(RefreshTokenValidationGuard)
-  @Get('devices')
+  @Get()
   getAllActiveSessions(@User() user: UserDBModel) {
     return this.securityService.getAllActiveSessions(user.id);
   }
 
   @UseGuards(RefreshTokenValidationGuard)
-  @Delete('devices')
+  @Delete()
   @HttpCode(204)
   async deleteActiveSessions(@Req() req: Request) {
     const result = await this.securityService.deleteAllActiveSessions(
@@ -42,7 +42,7 @@ export class SecurityController {
   }
 
   @UseGuards(RefreshTokenValidationGuard)
-  @Delete('devices/:id')
+  @Delete(':id')
   @HttpCode(204)
   async deleteActiveSessionsById(
     @Param('id') deviceId: string,
