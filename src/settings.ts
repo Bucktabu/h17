@@ -22,7 +22,7 @@ export const settings = {
   },
   throttler: {
     CONNECTION_TIME_LIMIT: '10000', // msec
-    CONNECTION_COUNT_LIMIT: '6',
+    CONNECTION_COUNT_LIMIT: '5',
   },
   environment: 'dev',
 };

@@ -14,7 +14,7 @@ import {
 import { Request, Response } from 'express';
 import { AuthService } from '../application/auth.service';
 import { SecurityService } from '../../security/application/security.service';
-import { ThrottlerGuard } from '@nestjs/throttler';
+import { Throttle, ThrottlerGuard } from "@nestjs/throttler";
 import { AuthDTO } from './dto/authDTO';
 import { EmailDTO } from './dto/emailDTO';
 import { RegistrationConfirmationDTO } from './dto/registration-confirmation.dto';
@@ -51,6 +51,7 @@ export class AuthController {
     return toAboutMeViewModel(user);
   }
 
+  @Throttle(5, 10)
   @UseGuards(ThrottlerGuard, CheckCredentialGuard)
   @Post('login')
   async createUser(
