@@ -118,7 +118,7 @@ export class AuthController {
     return;
   }
 
-  @UseGuards(ThrottlerGuard)
+  @Throttle(5, 10)
   @Post('registration')
   @HttpCode(204)
   async registration(@Body() dto: UserDto) {
@@ -127,7 +127,7 @@ export class AuthController {
     return;
   }
 
-  @UseGuards(ThrottlerGuard)
+  @Throttle(5, 10)
   @Post('registration-confirmation')
   @HttpCode(204)
   async registrationConfirmation(
@@ -144,7 +144,7 @@ export class AuthController {
     return;
   }
 
-  @UseGuards(ThrottlerGuard)
+  @Throttle(5, 10)
   @Post('registration-email-resending')
   @HttpCode(204)
   async registrationEmailResending(
