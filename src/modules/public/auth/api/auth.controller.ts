@@ -52,7 +52,7 @@ export class AuthController {
   }
 
   @Throttle(5, 10)
-  @UseGuards(ThrottlerGuard, CheckCredentialGuard)
+  @UseGuards(/*ThrottlerGuard,*/ CheckCredentialGuard)
   @Post('login')
   async createUser(
     @Body() dto: AuthDTO,
