@@ -15,8 +15,6 @@ import { Request, Response } from 'express';
 import { AuthService } from '../application/auth.service';
 import { SecurityService } from '../../security/application/security.service';
 import { Throttle, ThrottlerGuard } from "@nestjs/throttler";
-import { AuthDto } from './dto/authDTO';
-import { EmailDto } from './dto/emailDTO';
 import { RegistrationConfirmationDTO } from './dto/registration-confirmation.dto';
 import { EmailManager } from '../email-transfer/email.manager';
 import { UsersService } from '../../../super-admin/application/users.service';
@@ -29,9 +27,11 @@ import { UserDto } from '../../../super-admin/api/dto/userDto';
 import { RefreshTokenValidationGuard } from '../../../../guards/refresh-token-validation.guard';
 import {PgQueryUsersRepository} from "../../../super-admin/infrastructure/pg-query-users.repository";
 import {CreateUserUseCase} from "../../../super-admin/use-cases/create-user.use-case";
-import {NewPasswordDto} from "./dto/newPasswordDTO";
 import { PgEmailConfirmationRepository } from "../../../super-admin/infrastructure/pg-email-confirmation.repository";
 import { ResendingDto } from "./dto/resending.dto";
+import { AuthDto } from "./dto/auth.dto";
+import { EmailDto } from "./dto/email.dto";
+import { NewPasswordDto } from "./dto/new-password.dto";
 
 @Controller('auth')
 export class AuthController {
