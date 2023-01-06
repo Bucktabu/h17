@@ -15,8 +15,8 @@ import { Request, Response } from 'express';
 import { AuthService } from '../application/auth.service';
 import { SecurityService } from '../../security/application/security.service';
 import { Throttle, ThrottlerGuard } from "@nestjs/throttler";
-import { AuthDTO } from './dto/authDTO';
-import { EmailDTO } from './dto/emailDTO';
+import { AuthDto } from './dto/authDTO';
+import { EmailDto } from './dto/emailDTO';
 import { RegistrationConfirmationDTO } from './dto/registration-confirmation.dto';
 import { EmailManager } from '../email-transfer/email.manager';
 import { UsersService } from '../../../super-admin/application/users.service';
@@ -29,7 +29,7 @@ import { UserDto } from '../../../super-admin/api/dto/userDto';
 import { RefreshTokenValidationGuard } from '../../../../guards/refresh-token-validation.guard';
 import {PgQueryUsersRepository} from "../../../super-admin/infrastructure/pg-query-users.repository";
 import {CreateUserUseCase} from "../../../super-admin/use-cases/create-user.use-case";
-import {NewPasswordDTO} from "./dto/newPasswordDTO";
+import {NewPasswordDto} from "./dto/newPasswordDTO";
 import { PgEmailConfirmationRepository } from "../../../super-admin/infrastructure/pg-email-confirmation.repository";
 import { ResendingDto } from "./dto/resending.dto";
 
@@ -51,11 +51,11 @@ export class AuthController {
     return toAboutMeViewModel(user);
   }
 
-  @Throttle(5, 10)
-  @UseGuards(ThrottlerGuard, CheckCredentialGuard)
+  //@Throttle(5, 10)
+  @UseGuards(/*ThrottlerGuard,*/ CheckCredentialGuard)
   @Post('login')
   async createUser(
-    @Body() dto: AuthDTO,
+    @Body() dto: AuthDto,
     @Ip() ipAddress: string,
     @User() user: UserDBModel,
     @Res() res: Response,
@@ -76,7 +76,7 @@ export class AuthController {
 
   @Post('password-recovery')
   @HttpCode(204)
-  async passwordRecovery(@Body() dto: EmailDTO) {
+  async passwordRecovery(@Body() dto: EmailDto) {
     const user = await this.queryUsersRepository.getUserByLoginOrEmail(dto.email);
 
     if (!user) {
@@ -96,7 +96,7 @@ export class AuthController {
   @Post('new-password')
   @HttpCode(204)
   async createNewPassword(
-    @Body() dto: NewPasswordDTO,
+    @Body() dto: NewPasswordDto,
     @Req() req: Request
   ) {
     const userId = req.emailConfirmation.userId
@@ -118,8 +118,8 @@ export class AuthController {
     return;
   }
 
-  @Throttle(5, 10)
-  @UseGuards(ThrottlerGuard)
+  // @Throttle(5, 10)
+  // @UseGuards(ThrottlerGuard)
   @Post('registration')
   @HttpCode(204)
   async registration(@Body() dto: UserDto) {
@@ -128,8 +128,8 @@ export class AuthController {
     return;
   }
 
-  @Throttle(5, 10)
-  @UseGuards(ThrottlerGuard)
+  // @Throttle(5, 10)
+  // @UseGuards(ThrottlerGuard)
   @Post('registration-confirmation')
   @HttpCode(204)
   async registrationConfirmation(
@@ -146,8 +146,8 @@ export class AuthController {
     return;
   }
 
-  @Throttle(5, 10)
-  @UseGuards(ThrottlerGuard)
+  // @Throttle(5, 10)
+  // @UseGuards(ThrottlerGuard)
   @Post('registration-email-resending')
   @HttpCode(204)
   async registrationEmailResending(
@@ -158,7 +158,7 @@ export class AuthController {
     const newConfirmationCode = await this.authService.updateConfirmationCode(
       req.user.id,
     );
-    //console.log(newConfirmationCode, 'from auth controller');
+
     if (!newConfirmationCode) {
       throw new NotImplementedException();
     }
